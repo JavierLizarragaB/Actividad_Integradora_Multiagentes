@@ -391,11 +391,12 @@
             }
         }
         class Semafor extends THREE.Group {
-            constructor(x = 0, z = 0, corner = "XX", objFileName = "./assets/obj/semaforovergas.obj") {
+            constructor(x = 0, z = 0, orientation = 0, corner = "XX", objFileName = "./assets/obj/semaforovergas.obj") {
                 super();
                 this.color = 0xcc0000;
                 this.wireColor = 0xffffff;
                 this.position.set(x, 0, z);
+                this.rotation.y = orientation
                 this.corner = corner;
                 this.objFileName = objFileName;
                 this.loadOBJModel(objFileName);
@@ -455,27 +456,27 @@
                         }
                 );
         }
-        setColor(hexColor) {
-            this.color = hexColor;
-            this.solid.traverse(function(child) {
-                            if (child.isMesh) {
-                                child.material.color.setHex(hexColor);
-                            }
-            });
-        }
-        setWireColor(hexColor) {
-            this.wireColor = hexColor;
-            this.wire.traverse(function(child) {
-                            if (child.isMesh) {
-                                child.material.color.setHex(hexColor);
-                            }
-            });
-        }
-        setOnFloor() {
-            const bBox = new THREE.Box3();
-            bBox.setFromObject(this.solid);
-            this.position.y = -bBox.min.y;
-        }
+            setColor(hexColor) {
+                this.color = hexColor;
+                this.solid.traverse(function(child) {
+                                if (child.isMesh) {
+                                    child.material.color.setHex(hexColor);
+                                }
+                });
+            }
+            setWireColor(hexColor) {
+                this.wireColor = hexColor;
+                this.wire.traverse(function(child) {
+                                if (child.isMesh) {
+                                    child.material.color.setHex(hexColor);
+                                }
+                });
+            }
+            setOnFloor() {
+                const bBox = new THREE.Box3();
+                bBox.setFromObject(this.solid);
+                this.position.y = -bBox.min.y;
+            }
     }
         class Building extends THREE.Group {
             constructor(x = 0, z = 0, front = 50, depth = 50, height = 10, color = 0xcc0000, wireColor = 0xffffff) {
@@ -530,63 +531,63 @@
                 this.floor = new Floor(size);
                 this.buildings = [];
                 //SE
-                this.buildings.push(new Building(35, 35, 50, 50, 50));
-                this.buildings.push(new Building(35, 90, 50, 50, 10));
-                this.buildings.push(new Building(35, 145, 50, 50, 20));
-                this.buildings.push(new Building(35, 200, 50, 50, 80));
-                this.buildings.push(new Building(35, 255, 50, 50, 40));
+                this.buildings.push(new Building(56, 56, 50, 50, 50));
+                this.buildings.push(new Building(56, 110, 50, 50, 10));
+                this.buildings.push(new Building(56, 165, 50, 50, 20));
+                this.buildings.push(new Building(56, 220, 50, 50, 80));
+                this.buildings.push(new Building(56, 275, 50, 50, 40));
                 
-                this.buildings.push(new Building(90, 35, 50, 50, 10));
-                this.buildings.push(new Building(145, 35, 50, 50, 30));
-                this.buildings.push(new Building(200, 35, 50, 50, 50));
-                this.buildings.push(new Building(255, 35, 50, 50, 10));
-                this.buildings.push(new Building(305, 35, 50, 50, 40));
+                this.buildings.push(new Building(110, 56, 50, 50, 10));
+                this.buildings.push(new Building(165, 56, 50, 50, 30));
+                this.buildings.push(new Building(220, 56, 50, 50, 50));
+                this.buildings.push(new Building(275, 56, 50, 50, 10));
+                this.buildings.push(new Building(332, 56, 50, 50, 40));
 
-                this.buildings.push(new Semafor(-10, 2, "SE"));
+                this.buildings.push(new Semafor(-32, -18, -0.05, "SE"));
 
                 // SW (Tec)
-                this.buildings.push(new Building(-35, 35, 50, 50, 5));
-                this.buildings.push(new Building(-35, 90, 50, 50, 5));
-                this.buildings.push(new Building(-35, 145, 50, 50, 5));
-                this.buildings.push(new Building(-35, 200, 50, 50, 5));
+                this.buildings.push(new Building(-56, 56, 50, 50, 5));
+                this.buildings.push(new Building(-56, 110, 50, 50, 5));
+                this.buildings.push(new Building(-56, 165, 50, 50, 5));
+                this.buildings.push(new Building(-56, 220, 50, 50, 5));
 
-                this.buildings.push(new Building(-35, 35, 50, 50, 10));
-                this.buildings.push(new Building(-90, 35, 50, 50, 20));
-                this.buildings.push(new Building(-145, 35, 50, 50, 20));
-                this.buildings.push(new Building(-205, 35, 50, 50, 20));
-                this.buildings.push(new Building(-260, 35, 50, 50, 20));
+                this.buildings.push(new Building(-56, 56, 50, 50, 10));
+                this.buildings.push(new Building(-110, 56, 50, 50, 20));
+                this.buildings.push(new Building(-165, 56, 50, 50, 20));
+                this.buildings.push(new Building(-225, 56, 50, 50, 20));
+                this.buildings.push(new Building(-280, 56, 50, 50, 20));
 
-                this.buildings.push(new Semafor(10, 1, "SW"));
+                this.buildings.push(new Semafor(-18, 32, Math.PI/2-0.05, "SW"));
                 
                 // NE
-                this.buildings.push(new Building(35, -35, 50, 50, 10));
-                this.buildings.push(new Building(90, -35, 50, 50, 20));
-                this.buildings.push(new Building(145, -35, 50, 50, 20));
-                this.buildings.push(new Building(205, -35, 50, 50, 20));
-                this.buildings.push(new Building(260, -35, 50, 50, 20));
+                this.buildings.push(new Building(56, -56, 50, 50, 10));
+                this.buildings.push(new Building(110, -56, 50, 50, 20));
+                this.buildings.push(new Building(165, -56, 50, 50, 20));
+                this.buildings.push(new Building(225, -56, 50, 50, 20));
+                this.buildings.push(new Building(280, -56, 50, 50, 20));
 
-                this.buildings.push(new Building(35, -90, 50, 50, 10));
-                this.buildings.push(new Building(35, -145, 50, 50, 20));
-                this.buildings.push(new Building(35, -200, 50, 50, 20));
-                this.buildings.push(new Building(35, -255, 50, 50, 20));
-                this.buildings.push(new Building(35, -310, 50, 50, 20));
+                this.buildings.push(new Building(56, -110, 50, 50, 10));
+                this.buildings.push(new Building(56, -165, 50, 50, 20));
+                this.buildings.push(new Building(56, -220, 50, 50, 20));
+                this.buildings.push(new Building(56, -275, 50, 50, 20));
+                this.buildings.push(new Building(56, -330, 50, 50, 20));
 
-                this.buildings.push(new Semafor(10, 1, "NE"));
+                this.buildings.push(new Semafor(32, 18, Math.PI-0.05, "NE"));
                 
                 // NW
-                this.buildings.push(new Building(-35, -35, 50, 50, 10));
-                this.buildings.push(new Building(-90, -35, 50, 50, 20));
-                this.buildings.push(new Building(-145, -35, 50, 50, 20));
-                this.buildings.push(new Building(-205, -35, 50, 50, 20));
-                this.buildings.push(new Building(-260, -35, 50, 50, 20));
+                this.buildings.push(new Building(-56, -56, 50, 50, 10));
+                this.buildings.push(new Building(-110, -56, 50, 50, 20));
+                this.buildings.push(new Building(-165, -56, 50, 50, 20));
+                this.buildings.push(new Building(-225, -56, 50, 50, 20));
+                this.buildings.push(new Building(-280, -56, 50, 50, 20));
 
-                this.buildings.push(new Building(-35, -90, 50, 50, 10));
-                this.buildings.push(new Building(-35, -145, 50, 50, 20));
-                this.buildings.push(new Building(-35, -200, 50, 50, 20));
-                this.buildings.push(new Building(-35, -255, 50, 50, 20));
-                this.buildings.push(new Building(-35, -310, 50, 50, 20));
+                this.buildings.push(new Building(-56, -110, 50, 50, 10));
+                this.buildings.push(new Building(-56, -165, 50, 50, 20));
+                this.buildings.push(new Building(-56, -220, 50, 50, 20));
+                this.buildings.push(new Building(-56, -275, 50, 50, 20));
+                this.buildings.push(new Building(-56, -330, 50, 50, 20));
 
-                this.buildings.push(new Semafor(10, 1, "NW"));
+                this.buildings.push(new Semafor(18, -32, -Math.PI/2-0.05, "NW"));
 
                 // CHILDREN
                 this.add(this.axes);
