@@ -27,7 +27,7 @@
 
         "use strict";
 
-        let renderer, scene, camera, orbitControls, stats, gui, data, model;
+        let renderer, scene, camera, orbitControls, stats, gui, data, scenary;
         let frameIndex = 0;
         let carsLoaded = [];
         let automobiles = [];
@@ -45,7 +45,7 @@
             scene = new THREE.Scene();
 
             // MODELS
-            const scenary = new Scenary();
+            scenary = new Scenary();
 
             // SCENE GRAPH
             scene.add(scenary);
@@ -80,6 +80,27 @@
             //guiCameraMenu.add(camera, "internalView").setValue(camera.internalView).name("Internal View").listen().onChange((value)=>camera.setInternalView(model));
             guiCameraMenu.add(camera, "perspectiveView").setValue(camera.perspectiveView).name("Perspective View").listen().onChange((value)=>camera.setPerspective());
             guiCameraMenu.open();
+
+            const guiBuildings = gui.addFolder("Buildings Menu");
+            // GUI-Model
+            guiBuildings.add(scenary.buildings[0], "visible").setValue(scenary.buildings[0].visible).name("Visible").listen().onChange(value=>{
+                scenary.buildings[0].setVisible(value); 
+            });
+            guiBuildings.add(scenary.buildings[0], "visibleWire").setValue(scenary.buildings[0].wire).name("Wireframe").listen().onChange(value=>{
+                scenary.buildings[0].setVisibleWire(value); 
+            });
+            guiBuildings.add(scenary.buildings[0], "doubleSide").setValue(scenary.buildings[0].doubleSide).name("Double Side").listen().onChange(value=>{
+                scenary.buildings[0].setDoubleSide(value);                                    
+            });
+            guiBuildings.add(scenary.buildings[0], "visibleTexture").setValue(scenary.buildings[0].texture).name("Texture").listen().onChange(value=>{
+                scenary.buildings[0].setVisibleTexture(value); 
+            });
+            guiBuildings.addColor(scenary.buildings[0], "color").name("Color").setValue(scenary.buildings[0].color).listen().onChange(value=>{
+                scenary.buildings[0].setColor(value);
+            });
+            guiBuildings.addColor(scenary.buildings[0], "wireColor").name("Wire Color").setValue(scenary.buildings[0].wireColor).listen().onChange(value=>{
+                scenary.buildings[0].setWireColor(value);
+            });
 
             readTextFile("./simul_data.json", text => {
                 data = JSON.parse(text);
@@ -249,7 +270,7 @@
             }
         }
         class SportsCar extends THREE.Group {
-            constructor(carId, x = 0, z = 0, dir = 180, objFileName = "./assets/obj/sportsCar.obj") {
+            constructor(carId, x = 0, z = 0, dir = 180, objFileName = "./assets/obj/coche.obj") {
                 super();
                 this.carId = carId;
                 this.x = x;
@@ -258,14 +279,6 @@
                 this.position.set(x, 0, z);
                 this.color = 0xcc0000;
                 this.wireColor = 0xffffff;
-                this.material = [
-                         new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./img/rocks.jpg"), side: THREE.FrontSide}),
-                         new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./img/rocks.jpg"), side: THREE.FrontSide}),
-                         new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./img/red-brick.jpg"), side: THREE.FrontSide}),
-                         new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./img/green-grass.jpg"), side: THREE.FrontSide}),
-                         new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./img/sirewall.jpg"), side: THREE.FrontSide}),
-                         new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./img/water.jpg"), side: THREE.FrontSide})
-                        ];
                 this.doubleSide = false;
                 this.rotate = false;
                 this.objFileName = objFileName;
@@ -310,9 +323,6 @@
                                 guiModelMenu.add(automobiles[thisIndex], "doubleSide").setValue(automobiles[thisIndex].doubleSide).name("Double Side").listen().onChange(value=>{
                                     automobiles[thisIndex].setDoubleSide(value);                                    
                                 });
-                                guiModelMenu.add(automobiles[thisIndex], "material").setValue(automobiles[thisIndex]).name("Texture").listen().onChange(value=>{
-                                    automobiles[thisIndex].setTexture(value);                                    
-                                });
                                 guiModelMenu.addColor(automobiles[thisIndex], "color").name("Color").setValue(automobiles[thisIndex].color).listen().onChange(value=>{
                                     automobiles[thisIndex].setColor(value);
                                 });
@@ -337,21 +347,6 @@
                 this.solid.traverse(function(child) {
                                 if (child.isMesh) {
                                     child.material.color.setHex(hexColor);
-                                }
-                });
-            }
-            setTexture(value) {
-                this.texture = value;
-                this.material.traverse(function(child) {
-                                if (child.isMesh) {
-                                    child.material = [
-                                        new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./img/rocks.jpg"), side: THREE.FrontSide}),
-                                        new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./img/rocks.jpg"), side: THREE.FrontSide}),
-                                        new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./img/red-brick.jpg"), side: THREE.FrontSide}),
-                                        new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./img/green-grass.jpg"), side: THREE.FrontSide}),
-                                        new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./img/sirewall.jpg"), side: THREE.FrontSide}),
-                                        new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./img/water.jpg"), side: THREE.FrontSide})
-                                    ];
                                 }
                 });
             }
@@ -430,10 +425,9 @@
                                 trafficLight.setOnFloor();
                                         
                                 // MODEL-MENU
-                                console.log(trafficLight.corner + " Traffic Ligth Menu");
                                 const guiModelMenu = gui.addFolder(trafficLight.corner + " Traffic Ligth Menu");
                                 // GUI-Model
-                                guiModelMenu.add(model, "visible").setValue(trafficLight.visible).name("Visible").listen().onChange(function(value) {
+                                guiModelMenu.add(trafficLight, "visible").setValue(trafficLight.visible).name("Visible").listen().onChange(function(value) {
                                     
                                 });
                                 guiModelMenu.add(trafficLight.solid, "visible").setValue(trafficLight.solid.visible).name("Wireframe").listen().onChange(function(value) {
@@ -442,7 +436,7 @@
                                 guiModelMenu.addColor(trafficLight, "color").name("Color").setValue(trafficLight.color).listen().onChange(function(value) {
                                     trafficLight.setColor(value);
                                 });
-                                guiModelMenu.addColor(model, "wireColor").name("Wire Color").setValue(trafficLight.wireColor).listen().onChange(function(value) {
+                                guiModelMenu.addColor(trafficLight, "wireColor").name("Wire Color").setValue(trafficLight.wireColor).listen().onChange(function(value) {
                                     trafficLight.setWireColor(value);
                                 });
                         },
@@ -488,34 +482,121 @@
                 this.color = color;
                 this.wireColor = wireColor;
                 this.doubleSide = false;
+                this.visible = true;
+                this.visibleWire = false;
+                this.visibleTexture = true;
                 this.rotate = false;
                 const geometry = new THREE.BoxGeometry(front, height, depth);
                 const material = new THREE.MeshBasicMaterial({color});
                 const materialWire = new THREE.MeshBasicMaterial({wireframe: true, color: wireColor});
+                const materialTexture = [
+                    new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./img/edificio.jpg"), side: THREE.FrontSide}),
+                    new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./img/edificio.jpg"), side: THREE.FrontSide}),
+                    new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./img/roof.jpeg"), side: THREE.FrontSide}),
+                    new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./img/edificio.jpg"), side: THREE.FrontSide}),
+                    new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./img/edificio.jpg"), side: THREE.FrontSide}),
+                    new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./img/edificio.jpg"), side: THREE.FrontSide})
+                ];
+                this.texture = new THREE.Mesh(geometry, materialTexture);
                 this.solid = new THREE.Mesh(geometry, material);
                 this.wire = new THREE.Mesh(geometry, materialWire);
                 // CHILDREN
                 this.add(this.solid);
                 this.add(this.wire);
+                this.add(this.texture);
                 this.setOnFloor();
             }
-            setWireframe(value = true) {
-                this.solid.setVisible(value);
+            setVisible(value){
+                this.visible = value;
+                for(var i = 0; i < scenary.buildings.length; i++){
+                    if(value){
+                        scenary.buildings[i].visible = true;
+                        scenary.buildings[i].wire.visible = false;
+                        scenary.buildings[i].solid.visible = false;
+                        scenary.buildings[i].texture.visible = true;
+                        this.visibleWire = false;
+                        this.visibleTexture = true;
+                    }else{
+                        scenary.buildings[i].visible = false;
+                        scenary.buildings[i].wire.visible = false;
+                        scenary.buildings[i].solid.visible = false;
+                        scenary.buildings[i].texture.visible = false;
+                        this.visibleWire = false;
+                        this.visibleTexture = false;
+                    }
+                }
+            }
+            setVisibleWire(value = false){
+                this.visibleWire = value;
+                for(var i = 0; i < scenary.buildings.length; i++){
+                    if(value){
+                        scenary.buildings[i].wire.visible = true;
+                        scenary.buildings[i].solid.visible = false;
+                        scenary.buildings[i].texture.visible = false;
+                        this.visibleTexture = false;
+                    }else{
+                        scenary.buildings[i].wire.visible = true;
+                        scenary.buildings[i].solid.visible = true;
+                        scenary.buildings[i].texture.visible = true;
+                        this.visibleTexture = true;
+                    }
+                }
+            }
+            setVisibleTexture(value = true){
+                this.visibleTexture = value;
+                for(var i = 0; i < scenary.buildings.length; i++){
+                    if(value){
+                        scenary.buildings[i].wire.visible = false;
+                        scenary.buildings[i].solid.visible = false;
+                        scenary.buildings[i].texture.visible = true;
+                        this.visibleWire = false;
+                    }else{
+                        scenary.buildings[i].wire.visible = true;
+                        scenary.buildings[i].solid.visible = true;
+                        scenary.buildings[i].texture.visible = false;
+                        this.visibleWire = true;
+                    }
+                }
             }
             setColor(hexColor) {
-                this.color = hexColor;
-                this.solid.material.color.setHex(hexColor);
+                for(var i = 0; i < scenary.buildings.length; i++){
+                    scenary.buildings[i].color = hexColor;
+                    scenary.buildings[i].solid.material.color.setHex(hexColor);
+                    scenary.buildings[i].wire.visible = true;
+                    scenary.buildings[i].solid.visible = true;
+                    scenary.buildings[i].texture.visible = false;
+                }
             }
             setWireColor(hexColor) {
-                this.wireColor = hexColor;
-                this.wire.material.color.setHex(hexColor);
+                for(var i = 0; i < scenary.buildings.length; i++){
+                    scenary.buildings[i].wireColor = hexColor;
+                    scenary.buildings[i].wire.material.color.setHex(hexColor);
+                    scenary.buildings[i].wire.visible = true;
+                    scenary.buildings[i].solid.visible = true;
+                    scenary.buildings[i].texture.visible = false;
+                }
             }
             setDoubleSide(value) {
                 this.doubleSide = value;
-                if(value) {
-                    this.solid.material.side = THREE.DoubleSide;
-                } else {
-                    this.solid.material.side = THREE.FrontSide;
+                for(var i = 0; i < scenary.buildings.length; i++){
+                    if(value) {
+                        if(scenary.buildings[i].solid.visible){
+                            scenary.buildings[i].solid.material.side = THREE.DoubleSide;
+                        }else{
+                            scenary.buildings[i].solid.material.side = THREE.DoubleSide;
+                            scenary.buildings[i].solid.visible = false;
+                        }
+                        if(scenary.buildings[i].texture.visible){
+                            scenary.buildings[i].texture.material.side = THREE.DoubleSide;
+                            scenary.buildings[i].wire.visible = false;
+                        }else{
+                            scenary.buildings[i].texture.material.side = THREE.DoubleSide;
+                            scenary.buildings[i].texture.visible = false;
+                        }
+                    } else {
+                        scenary.buildings[i].solid.material.side = THREE.FrontSide;
+                        scenary.buildings[i].texture.material.side = THREE.FrontSide;
+                    }
                 }
             }
             setOnFloor() {
@@ -530,6 +611,7 @@
                 this.axes = new Axes(size);
                 this.floor = new Floor(size);
                 this.buildings = [];
+                this.semafors = []
                 //SE
                 this.buildings.push(new Building(56, 56, 50, 50, 50));
                 this.buildings.push(new Building(56, 110, 50, 50, 10));
@@ -543,7 +625,7 @@
                 this.buildings.push(new Building(275, 56, 50, 50, 10));
                 this.buildings.push(new Building(332, 56, 50, 50, 40));
 
-                this.buildings.push(new Semafor(-32, -18, -0.05, "SE"));
+                this.semafors.push(new Semafor(-32, -18, -0.05, "SE"));
 
                 // SW (Tec)
                 this.buildings.push(new Building(-56, 56, 50, 50, 5));
@@ -557,7 +639,7 @@
                 this.buildings.push(new Building(-225, 56, 50, 50, 20));
                 this.buildings.push(new Building(-280, 56, 50, 50, 20));
 
-                this.buildings.push(new Semafor(-18, 32, Math.PI/2-0.05, "SW"));
+                this.semafors.push(new Semafor(-18, 32, Math.PI/2-0.05, "SW"));
                 
                 // NE
                 this.buildings.push(new Building(56, -56, 50, 50, 10));
@@ -572,7 +654,7 @@
                 this.buildings.push(new Building(56, -275, 50, 50, 20));
                 this.buildings.push(new Building(56, -330, 50, 50, 20));
 
-                this.buildings.push(new Semafor(32, 18, Math.PI-0.05, "NE"));
+                this.semafors.push(new Semafor(32, 18, Math.PI-0.05, "NE"));
                 
                 // NW
                 this.buildings.push(new Building(-56, -56, 50, 50, 10));
@@ -587,13 +669,16 @@
                 this.buildings.push(new Building(-56, -275, 50, 50, 20));
                 this.buildings.push(new Building(-56, -330, 50, 50, 20));
 
-                this.buildings.push(new Semafor(18, -32, -Math.PI/2-0.05, "NW"));
+                this.semafors.push(new Semafor(18, -32, -Math.PI/2-0.05, "NW"));
 
                 // CHILDREN
                 this.add(this.axes);
                 this.add(this.floor);
                 for(let i = 0; i < this.buildings.length; i++) {
                     this.add(this.buildings[i]);
+                }
+                for(let i = 0; i < this.semafors.length; i++) {
+                    this.add(this.semafors[i]);
                 }
             }
         }
