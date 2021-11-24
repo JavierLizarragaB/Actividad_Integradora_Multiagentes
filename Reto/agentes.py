@@ -188,7 +188,8 @@ class AvenueModel(ap.Model):
 
     def setup(self):
         """ Este método se utiliza para inicializar la avenida con varios autos y semáforos. """
-        
+        self.file = open("simul_data.json", "w")
+        self.frame = 0
         # Inicializa los agentes los autos y los semáforos        
         self.cars = ap.AgentList(self, self.p.cars, Vehicle)
         self.cars.step_time =  self.p.step_time
@@ -235,7 +236,16 @@ class AvenueModel(ap.Model):
 
         self.cars.update_position()
         self.cars.update_speed()
+        self.file.write("{")
+        self.file.write('"frame": ' + str(self.frame) + ",")
+        self.file.write('"cars": [')
         self.cars.currentData()
+        self.file.write("]")
+        self.file.write("},")
+        self.frame = self.frame + 1
+
+    def end(self):
+        self.file.write("]}")
 
 parameters = {
     'step_time': 0.1,    # tiempo de cada paso
