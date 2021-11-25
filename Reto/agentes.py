@@ -19,19 +19,20 @@ orientation = [90, 270]
 carTypes = ['"SUV"', '"Sedan"', '"Sport"']
 
 
+
 class Semaphore(ap.Agent):
-    #Esta clase define a un semáforo.
-    def setup(self):     
-        self.step_time = 0.1         # Tiempo que dura cada paso de la simulación
+    # Esta clase define a un semáforo.
+    def setup(self):
+        self.step_time = 0.1  # Tiempo que dura cada paso de la simulación
 
-        self.direction = orientation[0]    # Dirección a la que apunta el semáforo
+        self.direction = orientation[0]  # Dirección a la que apunta el semáforo
 
-        self.state = 0               # Estado del semáforo 0 = verde, 1 = amarillo, 2 = rojo
-        self.state_time = 0          # Tiempo que ha durado el semáforo en el estado actual
+        self.state = 0  # Estado del semáforo 0 = verde, 1 = amarillo, 2 = rojo
+        self.state_time = 0  # Tiempo que ha durado el semáforo en el estado actual
 
-        self.green_duration = 35     # Tiempo que dura el semáforo en verde
-        self.yellow_duration = 7     # Tiempo que dura el semáforo en amarillo
-        self.red_duration = 40       # Tiempo que dura el semáforo en rojo        
+        self.green_duration = 35  # Tiempo que dura el semáforo en verde
+        self.yellow_duration = 7  # Tiempo que dura el semáforo en amarillo
+        self.red_duration = 40  # Tiempo que dura el semáforo en rojo
 
     def update(self):
         # Este método actualiza el estado del semáforo.
@@ -53,6 +54,7 @@ class Semaphore(ap.Agent):
                 self.state = 0
                 self.state_time = 0
 
+
     def currentData(self):
         print("Semaphore",self.id)
         self.model.file.write("{")
@@ -67,15 +69,12 @@ class Semaphore(ap.Agent):
 
 class Vehicle(ap.Agent):
     def setup(self):
-        r = random.randint(0,255)
-        g = random.randint(0,255)
-        b = random.randint(0,255)
-        self.color = toHex((r,g,b))
-
-        self.carType = carTypes[random.randint(0,2)]
+        r = random.randint(0, 255)
+        g = random.randint(0, 255)
+        b = random.randint(0, 255)
+        self.color = toHex((r, g, b))
+        self.carType = carTypes[random.randint(0, 2)]
         self.direction = 0
-
-
 
     def setupPos(self, espacio):
         # origen = random.randint(0,1) # genera numero aleatorio entre 0 y 3
@@ -94,7 +93,7 @@ class Vehicle(ap.Agent):
 
         # self.Fx = (random.random() * directionsX[destino][1]) + directionsX[destino][0]
         # self.Fz = (random.random() * directionsZ[destino][1]) + directionsZ[destino][0]
-      
+
     def currentData(self):
         print("Current",self.id)
         self.model.file.write("{")
@@ -128,12 +127,13 @@ class Vehicle(ap.Agent):
         if self.state == 0:
             return
             # si el carro choco no se calcula nada
-        
-        #actualizamos posicion
-        angle = self.direction*math.pi/180
+
+        # actualizamos posicion
+        angle = self.direction * math.pi / 180
         # self.x += self.speed*math.cos(self.angle)
         # self.z += self.speed*math.sin(self.angle)
         self.avenue.move_by(self, [self.speed*math.cos(angle), self.speed*math.sin(angle)])
+
 
         posAux = self.avenue.positions[self]
         self.x = posAux[0]
@@ -144,8 +144,8 @@ class Vehicle(ap.Agent):
         if self.state == 0:
             return
             # si el carro choco no se calcula nada
-        angle = self.direction*math.pi/180
-        #distancias entre vehiculos
+        angle = self.direction * math.pi / 180
+        # distancias entre vehiculos
         # p = self.model.avenue.positions[self]
 
         min_car_distance = 100000
@@ -167,7 +167,6 @@ class Vehicle(ap.Agent):
                 if min_semaphore_distance > d:
                     min_semaphore_distance = d
                     semaphore_state = semaphore.state
-
                 # Actualiza la velocidad del auto
         if min_car_distance < 2:
             self.speed = 0
@@ -187,9 +186,8 @@ class Vehicle(ap.Agent):
             
         elif min_semaphore_distance < 100 and min_semaphore_distance > 30 and semaphore_state == 2:
             self.speed = np.maximum(self.speed - 100*self.step_time, 0)
-
         else:
-            self.speed = np.minimum(self.speed + 5*self.step_time, self.max_speed)
+            self.speed = np.minimum(self.speed + 5 * self.step_time, self.max_speed)
 
 class AvenueModel(ap.Model):
     """ Esta clase define un modelo para una avenida simple con semáforo peatonal. """
@@ -198,21 +196,21 @@ class AvenueModel(ap.Model):
         """ Este método se utiliza para inicializar la avenida con varios autos y semáforos. """
         self.file = open("simul_data.json", "w")
         self.frame = 0
-        # Inicializa los agentes los autos y los semáforos        
+        # Inicializa los agentes los autos y los semáforos
         self.cars = ap.AgentList(self, self.p.cars, Vehicle)
-        self.cars.step_time =  self.p.step_time
-        
-        c_north = int(self.p.cars/2)
+        self.cars.step_time = self.p.step_time
+
+        c_north = int(self.p.cars / 2)
         c_south = self.p.cars - c_north
 
         for k in range(c_north):
             self.cars[k].direction = 270
 
         for k in range(c_south):
-            self.cars[k+c_north].direction = 90
+            self.cars[k + c_north].direction = 90
 
-        self.semaphores = ap.AgentList(self,2, Semaphore)
-        self.semaphores.step_time =  self.p.step_time
+        self.semaphores = ap.AgentList(self, 2, Semaphore)
+        self.semaphores.step_time = self.p.step_time
         self.semaphores.green_duration = self.p.green
         self.semaphores.yellow_duration = self.p.yellow
         self.semaphores.red_duration = self.p.red
@@ -243,7 +241,7 @@ class AvenueModel(ap.Model):
         self.file.write('"frames": [')
 
     def step(self):
-        
+      
         self.file.write("{")
         self.file.write('"frame": '+str(self.frame)+",")
         self.file.write('"cars": [')
@@ -272,17 +270,20 @@ class AvenueModel(ap.Model):
 parameters = {
     'step_time': 0.1,    # tiempo de cada paso
     'size': 1000,        # Tamaño en metros de la avenida
-    'green': 2,          # Duración de la luz verde
-    'yellow': 1,         # Duración de la luz amarilla
+    'green': 3,          # Duración de la luz verde
+    'yellow': 2,         # Duración de la luz amarilla
     'red': 4,           # Duración de la luz roja
     'cars': 10,          # Número de autos en la simulación
     'steps': 400,       # Número de pasos de la simulación
 }
+def main():
+    carAmount = int(input("Cuantos carros quiere simular: "))
+    stepAmount = int(input("Cuantos pasos quiere simular: "))
+    parameters['cars'] = carAmount
+    parameters['steps'] = stepAmount
+    model = AvenueModel(parameters)
+    results = model.run()
+    return
 
 
-# carAmount = int(input("Cuantos carros quiere simular: "))
-# stepAmount = int(input("Cuantos pasos quiere simular: "))
-# parameters['cars'] = carAmount
-# parameters['steps'] = stepAmount
-model = AvenueModel(parameters)
-results = model.run()
+main()
