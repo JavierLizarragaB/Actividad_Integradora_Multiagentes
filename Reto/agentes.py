@@ -2,9 +2,6 @@ import agentpy as ap
 import numpy as np
 import random
 import math
-# Visualization
-import matplotlib.pyplot as plt
-import json
 
 
 def toHex(rgb):
@@ -15,12 +12,11 @@ def toHex(rgb):
 # directionsX = [[-500, -100],[-0.5, 0.5],[100, 500],[-0.5, 0.5]]
 # directionsZ = [[-0.5, 0.5],[-500, -100],[-0.5, 0.5],[100, 500]]
 # orientation = [0, 90, 180, 270]
-directionsX = [[-0.5, 0.5],[-0.5, 0.5]]
-directionsZ = [[-500, -100],[100, 500]]
+# directionsX = [[-0.5, 0.5],[-0.5, 0.5]]
+# directionsZ = [[-500, -100],[100, 500]]
 
 orientation = [90, 270]
-carTypes = ["SUV", "Sedan", "Sport"]
-filesito = {}
+carTypes = ['"SUV"', '"Sedan"', '"Sport"']
 
 
 class Semaphore(ap.Agent):
@@ -57,6 +53,18 @@ class Semaphore(ap.Agent):
                 self.state = 0
                 self.state_time = 0
 
+    def currentData(self):
+        print("Semaphore",self.id)
+        self.model.file.write("{")
+        self.model.file.write('"id":' + str(self.id - 1) + ",")
+        self.model.file.write('"state":' + str(self.state) + ",")
+        self.model.file.write('"dir":' + str(self.direction))
+        if (self.id- len(self.model.cars) != len(self.model.semaphores)):
+            self.model.file.write("},")
+        else:
+            self.model.file.write("}")
+        return
+
 class Vehicle(ap.Agent):
     def setup(self):
         r = random.randint(0,255)
@@ -91,8 +99,8 @@ class Vehicle(ap.Agent):
         print("Current",self.id)
         self.model.file.write("{")
         self.model.file.write('"id":' + str(self.id - 1) + ",")
-        self.model.file.write('"x":' + str(self.x) + ",")
-        self.model.file.write('"z":' + str(self.z) + ",")
+        self.model.file.write('"x":' + str(self.x -self.p.size/2) + ",")
+        self.model.file.write('"z":' + str(self.z-self.p.size/2) + ",")
         self.model.file.write('"dir":' + str(self.direction))
         if (self.id != len(self.model.cars)):
             self.model.file.write("},")
@@ -107,8 +115,8 @@ class Vehicle(ap.Agent):
         self.model.file.write('"type":' + str(self.carType) + ",")
         self.model.file.write('"dir":' + str(self.direction) + ",")
         self.model.file.write('"origin": {')
-        self.model.file.write('"x":' + str(self.x) + ",")
-        self.model.file.write('"z":' + str(self.z))
+        self.model.file.write('"x":' + str(self.x-self.p.size/2) + ",")
+        self.model.file.write('"z":' + str(self.z-self.p.size/2))
         self.model.file.write('}')
         if (self.id != len(self.model.cars)):
             self.model.file.write("},")
@@ -228,24 +236,38 @@ class AvenueModel(ap.Model):
             self.avenue.move_to(self.cars[k+c_north], [self.p.size*0.5 - 5, -self.p.size + self.p.cars*11 - (k+1)*10])
         
         self.cars.setupPos(self.avenue)
+        self.file.write("{")
+        self.file.write('"cars": [')
         self.cars.initialData()
+        self.file.write("],")
+        self.file.write('"frames": [')
 
     def step(self):
+        
+        self.file.write("{")
+        self.file.write('"frame": '+str(self.frame)+",")
+        self.file.write('"cars": [')
         """ Este método se invoca para actualizar el estado de la avenida. """        
         self.semaphores.update()
 
         self.cars.update_position()
         self.cars.update_speed()
-        self.file.write("{")
-        self.file.write('"frame": ' + str(self.frame) + ",")
-        self.file.write('"cars": [')
         self.cars.currentData()
+        self.file.write('], "TL": [')
+        self.semaphores.currentData()
         self.file.write("]")
-        self.file.write("},")
+    
+        if(self.frame < self.p.steps-1):
+            self.file.write("},")
+        else:
+            self.file.write("}")
         self.frame = self.frame + 1
 
-    def end(self):
-        self.file.write("]}")
+        if(self.frame > self.p.steps-1):
+            self.file.write("]}")
+            self.file.close()
+            self.stop()
+        return
 
 parameters = {
     'step_time': 0.1,    # tiempo de cada paso
@@ -257,5 +279,10 @@ parameters = {
     'steps': 400,       # Número de pasos de la simulación
 }
 
+
+# carAmount = int(input("Cuantos carros quiere simular: "))
+# stepAmount = int(input("Cuantos pasos quiere simular: "))
+# parameters['cars'] = carAmount
+# parameters['steps'] = stepAmount
 model = AvenueModel(parameters)
 results = model.run()
