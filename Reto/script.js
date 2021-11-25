@@ -89,8 +89,10 @@ function updateScene() {
         car.setPosition(vehicle.x, vehicle.z);
         car.setDirection(vehicle.dir);
     });
+    scenary.setTrafficLights(data.frames[frameIndex]);
     if (frameIndex < data.frames.length - 1) frameIndex++;
-    if (camera.autoRotate) camera.orbitControls.update();
+    if (camera[0].autoRotate) camera[0].orbitControls.update();
+    if(camera[0].internalView) camera[0].setInternalView(camera[0].carTarget);
 }
 
 function readTextFile(file, callback) {
@@ -115,10 +117,11 @@ class Camera extends THREE.PerspectiveCamera {
         super(fov, aspect, near, far);
         this.orbitControls = new OrbitControls(this, renderer.domElement);
         this.orbitControls.update();
-        this.topView = true;
+        this.topView = false;
         this.frontView = false;
         this.sideView = false;
         this.internalView = false;
+        this.carTarget;
         this.perspectiveView = false;
         this.autoRotate = false;
 
@@ -182,15 +185,16 @@ class Camera extends THREE.PerspectiveCamera {
         this.up.set(0, 1, 0);
         this.orbitControls.update();
     }
-    setInternalView(model) {
+    setInternalView(carrito) {
+        this.carTarget = carrito;
         this.topView = false;
         this.frontView = false;
         this.sideView = false;
         this.internalView = true;
         this.perspectiveView = false;
 
-        this.position.set(model.position.x, model.position.y + 5, model.position.z);
-        this.orbitControls.target = new THREE.Vector3(0, 0, 0);
+        this.position.set(carrito.position.x, carrito.position.y + 5, carrito.position.z);
+        this.orbitControls.target = new THREE.Vector3(carrito.position.x, carrito.position.y + 5, carrito.position.z + Math.cos(carrito.theta));
         this.up.set(0, 1, 0);
         this.orbitControls.update();
     }
@@ -242,14 +246,14 @@ class Floor extends THREE.Group {
     }
 }
 class SportsCar extends THREE.Group {
-    constructor(carId, x = 0, z = 0, dir = 180, objFileName = "./assets/obj/car.obj") {
+    constructor(carId, x = 0, z = 0, dir = 180, color = 0xcc0000, objFileName = "./assets/obj/car.obj") {
         super();
         this.carId = carId;
         this.x = x;
         this.z = z;
         this.theta = dir-90;
         this.position.set(x, 0, z);
-        this.color = 0xcc0000;
+        this.color = color;
         this.wireColor = 0xffffff;
         this.doubleSide = false;
         this.rotate = false;
@@ -529,7 +533,7 @@ class Scenary extends THREE.Group {
         this.buildings.push(new Building(275, 56, 50, 50, 10));
         this.buildings.push(new Building(332, 56, 50, 50, 40));
 
-        this.semafors.push(new Semafor(-32, -18, -0.05, "SE"));
+        
 
         // SW (Tec)
         this.buildings.push(new Building(-56, 56, 50, 50, 5));
@@ -543,7 +547,7 @@ class Scenary extends THREE.Group {
         this.buildings.push(new Building(-225, 56, 50, 50, 20));
         this.buildings.push(new Building(-280, 56, 50, 50, 20));
 
-        this.semafors.push(new Semafor(-18, 32, Math.PI / 2 - 0.05, "SW"));
+        
 
         // NE
         this.buildings.push(new Building(56, -56, 50, 50, 10));
@@ -558,7 +562,7 @@ class Scenary extends THREE.Group {
         this.buildings.push(new Building(56, -275, 50, 50, 20));
         this.buildings.push(new Building(56, -330, 50, 50, 20));
 
-        this.semafors.push(new Semafor(32, 18, Math.PI - 0.05, "NE"));
+        
 
         // NW
         this.buildings.push(new Building(-56, -56, 50, 50, 10));
@@ -573,7 +577,10 @@ class Scenary extends THREE.Group {
         this.buildings.push(new Building(-56, -275, 50, 50, 20));
         this.buildings.push(new Building(-56, -330, 50, 50, 20));
 
+        this.semafors.push(new Semafor(-18, 32, Math.PI / 2 - 0.05, "SW"));
         this.semafors.push(new Semafor(18, -32, -Math.PI / 2 - 0.05, "NW"));
+        this.semafors.push(new Semafor(32, 18, Math.PI - 0.05, "NE"));
+        this.semafors.push(new Semafor(-32, -18, -0.05, "SE"));
 
         // CHILDREN
         this.add(this.axes);
@@ -664,5 +671,21 @@ class Scenary extends THREE.Group {
             edificio.solid.visible = true;
             edificio.texture.visible = false;
         });
+    }
+    setTrafficLights(frame){
+        for(var i=0;i<frame.TL.length;i++){
+            if(frame.TL[i].state == 0){
+                this.semafors[i].setColor(0x00FF00);
+                this.semafors[i].setWireColor(0x00FF00);
+            }
+            if(frame.TL[i].state == 1){
+                this.semafors[i].setColor(0xFFFF00);
+                this.semafors[i].setWireColor(0xFFFF00);
+            }
+            if(frame.TL[i].state == 2){
+                this.semafors[i].setColor(0xFF0000);
+                this.semafors[i].setWireColor(0xFF0000);
+            }
+        }
     }
 }
