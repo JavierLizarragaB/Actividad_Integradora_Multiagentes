@@ -19,6 +19,8 @@
 
 <body>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
+    <script type="module" src="./script.js"></script>
+=======
     <script type="module">
         import * as THREE from 'https://unpkg.com/three/build/three.module.js';
         import Stats from "https://unpkg.com/three/examples/jsm/libs/stats.module.js";
@@ -629,65 +631,6 @@
                 this.buildings.push(new Building(220, 56, 50, 50, 50));
                 this.buildings.push(new Building(275, 56, 50, 50, 10));
                 this.buildings.push(new Building(332, 56, 50, 50, 40));
-
-                this.semafors.push(new Semafor(-32, -18, -0.05, "SE"));
-
-                // SW (Tec)
-                this.buildings.push(new Building(-56, 56, 50, 50, 5));
-                this.buildings.push(new Building(-56, 110, 50, 50, 5));
-                this.buildings.push(new Building(-56, 165, 50, 50, 5));
-                this.buildings.push(new Building(-56, 220, 50, 50, 5));
-
-                this.buildings.push(new Building(-56, 56, 50, 50, 10));
-                this.buildings.push(new Building(-110, 56, 50, 50, 20));
-                this.buildings.push(new Building(-165, 56, 50, 50, 20));
-                this.buildings.push(new Building(-225, 56, 50, 50, 20));
-                this.buildings.push(new Building(-280, 56, 50, 50, 20));
-
-                this.semafors.push(new Semafor(-18, 32, Math.PI/2-0.05, "SW"));
-                
-                // NE
-                this.buildings.push(new Building(56, -56, 50, 50, 10));
-                this.buildings.push(new Building(110, -56, 50, 50, 20));
-                this.buildings.push(new Building(165, -56, 50, 50, 20));
-                this.buildings.push(new Building(225, -56, 50, 50, 20));
-                this.buildings.push(new Building(280, -56, 50, 50, 20));
-
-                this.buildings.push(new Building(56, -110, 50, 50, 10));
-                this.buildings.push(new Building(56, -165, 50, 50, 20));
-                this.buildings.push(new Building(56, -220, 50, 50, 20));
-                this.buildings.push(new Building(56, -275, 50, 50, 20));
-                this.buildings.push(new Building(56, -330, 50, 50, 20));
-
-                this.semafors.push(new Semafor(32, 18, Math.PI-0.05, "NE"));
-                
-                // NW
-                this.buildings.push(new Building(-56, -56, 50, 50, 10));
-                this.buildings.push(new Building(-110, -56, 50, 50, 20));
-                this.buildings.push(new Building(-165, -56, 50, 50, 20));
-                this.buildings.push(new Building(-225, -56, 50, 50, 20));
-                this.buildings.push(new Building(-280, -56, 50, 50, 20));
-
-                this.buildings.push(new Building(-56, -110, 50, 50, 10));
-                this.buildings.push(new Building(-56, -165, 50, 50, 20));
-                this.buildings.push(new Building(-56, -220, 50, 50, 20));
-                this.buildings.push(new Building(-56, -275, 50, 50, 20));
-                this.buildings.push(new Building(-56, -330, 50, 50, 20));
-
-                this.semafors.push(new Semafor(18, -32, -Math.PI/2-0.05, "NW"));
-
-                // CHILDREN
-                this.add(this.axes);
-                this.add(this.floor);
-                for(let i = 0; i < this.buildings.length; i++) {
-                    this.add(this.buildings[i]);
-                }
-                for(let i = 0; i < this.semafors.length; i++) {
-                    this.add(this.semafors[i]);
-                }
-            }
-        }
-    </script>
 </body>
 
 </html>
