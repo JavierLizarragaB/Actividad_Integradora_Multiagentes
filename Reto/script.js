@@ -189,7 +189,7 @@ class Camera extends THREE.PerspectiveCamera {
         this.internalView = true;
         this.perspectiveView = false;
 
-        this.position.set(model.position.x, model.position.y + 1.5, model.position.z);
+        this.position.set(model.position.x, model.position.y + 5, model.position.z);
         this.orbitControls.target = new THREE.Vector3(0, 0, 0);
         this.up.set(0, 1, 0);
         this.orbitControls.update();
@@ -300,7 +300,7 @@ class SportsCar extends THREE.Group {
                 guiModelMenu.add(automobiles[thisIndex], "doubleSide").setValue(automobiles[thisIndex].doubleSide).name("Double Side").listen().onChange(value => automobiles[thisIndex].setDoubleSide(value));
                 guiModelMenu.addColor(automobiles[thisIndex], "color").name("Color").setValue(automobiles[thisIndex].color).listen().onChange(value => automobiles[thisIndex].setColor(value));
                 guiModelMenu.addColor(automobiles[thisIndex], "wireColor").name("Wire Color").setValue(automobiles[thisIndex].wireColor).listen().onChange(value => automobiles[thisIndex].setWireColor(value));
-                guiModelMenu.add(camera[0], "internalView").setValue(camera[0].internalView).name("Internal View").listen().onChange((value) => camera.setInternalView(automobiles[thisIndex]));
+                guiModelMenu.add(camera[0], "internalView").setValue(camera[0].internalView).name("Internal View").listen().onChange((value) => camera[0].setInternalView(automobiles[thisIndex]));
                 carsLoaded++;
             },
             // called when loading is in progresses
