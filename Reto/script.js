@@ -247,7 +247,7 @@ class SportsCar extends THREE.Group {
         this.carId = carId;
         this.x = x;
         this.z = z;
-        this.theta = dir;
+        this.theta = dir-90;
         this.position.set(x, 0, z);
         this.color = 0xcc0000;
         this.wireColor = 0xffffff;
@@ -352,8 +352,8 @@ class SportsCar extends THREE.Group {
         this.position.set(x, 0, z);
     }
     setDirection(dir) {
-        this.theta = dir;
-        this.rotation.y = dir * Math.PI / 180;
+        this.theta = dir-90;
+        this.rotation.y = (dir-90) * Math.PI / 180;
     }
 }
 class Semafor extends THREE.Group {
