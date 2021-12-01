@@ -41,6 +41,7 @@ carTypes = ['"SUV"', '"Sedan"', '"Sport"']
 class Semaphore(ap.Agent):
     # Esta clase define a un semáforo.
     def setup(self):
+        self.nose = True #variable rara no supe donde ponerla alv
         self.orden = [0,0,0,0]
         self.step_time = 0.1  # Tiempo que dura cada paso de la simulación
 
@@ -111,9 +112,8 @@ class TLPriority(Semaphore):
     pass
 
 class TLSameORder(Semaphore):
-    self.nose = True
     def ordenarSemaphores(self):
-        if nose:
+        if self.nose:
             nose = False
             aux = 0
             self.orden[0] = random.randint(0,3)
