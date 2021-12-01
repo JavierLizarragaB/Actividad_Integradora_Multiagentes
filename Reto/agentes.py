@@ -16,9 +16,6 @@ def votacion(a,b,c,d):
     #b = [3,1,2,0], prioridades (0->2->1->3)
     #total = [3,2,4,3], prioridades (2->0,3->1)
     total = [a[0]+b[0]+c[0]+d[0], a[1]+b[1]+c[1]+d[1], a[2]+b[2]+c[2]+d[2], a[3]+b[3]+c[3]+d[3]]
-#     heap = [0,0,0,0]
-#     print("total: ")
-#     print(total)
     answ = []
     auxpos = 0
     for i in range(4):
@@ -29,8 +26,6 @@ def votacion(a,b,c,d):
                 aux = total[ii]
         answ.append(auxpos)
         total[auxpos] = -1
-#     print("answ: ")
-#     print (answ)
     return answ
     
     
@@ -42,6 +37,7 @@ class Semaphore(ap.Agent):
     # Esta clase define a un semáforo.
     def setup(self):
         self.nose = True #variable rara no supe donde ponerla alv
+        self.type = -1
         self.orden = [0,0,0,0]
         self.step_time = 0.1  # Tiempo que dura cada paso de la simulación
 
@@ -53,6 +49,8 @@ class Semaphore(ap.Agent):
         self.green_duration = 35  # Tiempo que dura el semáforo en verde
         self.yellow_duration = 7  # Tiempo que dura el semáforo en amarillo
         self.red_duration = 40  # Tiempo que dura el semáforo en rojo
+    def setupSpas(self, espacio):
+        self.avenue = espacio
 
     def update(self):
         # Este método actualiza el estado del semáforo.
@@ -73,7 +71,6 @@ class Semaphore(ap.Agent):
         self.state = 0
         self.state_time = 0
     def currentData(self):
-#         print("Semaphore",self.id)
         self.model.file.write("{")
         self.model.file.write('"id":' + str(self.id - 1) + ",")
         self.model.file.write('"state":' + str(self.state) + ",")
@@ -83,54 +80,77 @@ class Semaphore(ap.Agent):
         else:
             self.model.file.write("}")
         return
-
-
-
-class TLRandom(Semaphore):
     def ordenarSemaphores(self):
-        aux = 0
-        self.orden[0] = random.randint(0,3)
-        aux = random.randint(0,3)
-        while aux == self.orden[0]:
-            aux = random.randint(0,3)
-        self.orden[1] = aux
-        
-        aux = random.randint(0,3)
-        while aux == self.orden[0] or aux == self.orden[1]:
-            aux = random.randint(0,3)
-        self.orden[2] = aux
-        
-        aux = random.randint(0,3)
-        while aux == self.orden[0] or aux == self.orden[1] or aux == self.orden[2]:
-            aux = random.randint(0,3)
-        self.orden[3] = aux
-
-class TLSelf(Semaphore):
-    pass
-
-class TLPriority(Semaphore):
-    pass
-
-class TLSameORder(Semaphore):
-    def ordenarSemaphores(self):
-        if self.nose:
-            nose = False
+        if self.type == 0: #semaforo que escoge aleatoriamente
             aux = 0
             self.orden[0] = random.randint(0,3)
             aux = random.randint(0,3)
             while aux == self.orden[0]:
                 aux = random.randint(0,3)
             self.orden[1] = aux
-
+            
             aux = random.randint(0,3)
             while aux == self.orden[0] or aux == self.orden[1]:
                 aux = random.randint(0,3)
             self.orden[2] = aux
-
+            
             aux = random.randint(0,3)
             while aux == self.orden[0] or aux == self.orden[1] or aux == self.orden[2]:
                 aux = random.randint(0,3)
             self.orden[3] = aux
+            return
+        elif self.type == 1: #semaforo que escoge un orden random 1 vez
+             if self.nose:
+                self.nose = False
+                aux = 0
+                self.orden[0] = random.randint(0,3)
+                aux = random.randint(0,3)
+                while aux == self.orden[0]:
+                    aux = random.randint(0,3)
+                self.orden[1] = aux
+
+                aux = random.randint(0,3)
+                while aux == self.orden[0] or aux == self.orden[1]:
+                    aux = random.randint(0,3)
+                self.orden[2] = aux
+
+                aux = random.randint(0,3)
+                while aux == self.orden[0] or aux == self.orden[1] or aux == self.orden[2]:
+                    aux = random.randint(0,3)
+                self.orden[3] = aux
+                return
+        elif self.type == 2: #semaforo que escoge a si mismo nomas
+            self.orden = [1,1,1,1]
+            self.orden[self.id-self.p.cars] = 3
+            return
+        elif self.type == 3: #semaforo que escoge quien tenga mas carros
+            prioriadorsmt = [0,0,0,0]
+            i=0
+            for semaphore in self.model.semaphores:
+                angle = semaphore.direction * math.pi / 180
+                min_semaphore_distance = 300
+                cont = 0 #contador de cuantos carros tiene el wey
+                p = self.avenue.positions[semaphore] #posicion del semaforo actual
+                for car in self.model.cars:
+                    if  abs(car.direction - semaphore.direction) == 0 and (((p[0] - car.x) *math.cos(angle)) + ((p[1] - car.z) *math.sin(angle))) > 0:
+                        d = math.sqrt((car.x - p[0])**2 + (car.z - p[1])**2)
+                        if min_semaphore_distance > d:
+                            cont = cont +1
+                prioriadorsmt[i]=cont
+                i = 1+i
+            answ = []
+            auxpos = 0
+            for i in range(4):
+                aux = 0
+                for ii in range(4):
+                    if aux < prioriadorsmt[ii]:
+                        auxpos = ii
+                        aux = prioriadorsmt[ii]
+                answ.append(auxpos)
+                prioriadorsmt[auxpos] = -1
+            self.orden = answ
+            return
+
 
 
 
@@ -145,10 +165,6 @@ class Vehicle(ap.Agent):
         self.carril = 0
 
     def setupPos(self, espacio):
-        # origen = random.randint(0,1) # genera numero aleatorio entre 0 y 3
-        # destino = int(random.random() * 100)%4
-        # self.x = (random.random() * directionsX[origen][1]) + directionsX[origen][0]
-        # self.z = (random.random() * directionsZ[origen][1]) + directionsZ[origen][0]
         self.avenue = espacio
         posAux = espacio.positions[self]
         self.x = posAux[0]
@@ -159,11 +175,7 @@ class Vehicle(ap.Agent):
         self.max_speed = 25 # max velocidad en m/s
         self.state = 1 # 0 carro choco, 1 carro ok
 
-        # self.Fx = (random.random() * directionsX[destino][1]) + directionsX[destino][0]
-        # self.Fz = (random.random() * directionsZ[destino][1]) + directionsZ[destino][0]
-
     def currentData(self):
-        #print("Current",self.id)
         self.model.file.write("{")
         self.model.file.write('"id":' + str(self.id - 1) + ",")
         self.model.file.write('"x":' + str(self.x -self.p.size/2) + ",")
@@ -176,7 +188,6 @@ class Vehicle(ap.Agent):
         return
 
     def initialData(self):
-        #print("Initial",self.id)
         self.model.file.write("{")
         self.model.file.write('"id":' + str(self.id - 1) + ",")
         self.model.file.write('"type":' + str(self.carType) + ",")
@@ -297,9 +308,7 @@ class AvenueModel(ap.Model):
         for k in range(c_west):
             self.cars[k + c_north+c_south+c_east].direction = 180
 
-        # self.semaphore2 TLSameORder
-
-        self.semaphores = ap.AgentList(self, 4, TLRandom)
+        self.semaphores = ap.AgentList(self, 4, Semaphore)
         self.semaphores.step_time = self.p.step_time
         self.semaphores.green_duration = self.p.green
         self.semaphores.yellow_duration = self.p.yellow
@@ -308,6 +317,10 @@ class AvenueModel(ap.Model):
         self.semaphores[1].direction = 270
         self.semaphores[2].direction = 0
         self.semaphores[3].direction = 180
+        self.semaphores[0].type = 0
+        self.semaphores[1].type = 1
+        self.semaphores[2].type = 2
+        self.semaphores[3].type = 3
         
 
         # Inicializa el entorno
@@ -370,6 +383,7 @@ class AvenueModel(ap.Model):
                 self.avenue.move_to(self.cars[k+c_east+c_south+c_north], [self.p.size- self.p.cars*11 +10*(k+1), self.p.size*0.5 - 21])
         
         self.cars.setupPos(self.avenue)
+        self.semaphores.setupSpas(self.avenue)
         self.file.write("{")
         self.file.write('"cars": [')
         self.cars.initialData()
@@ -387,9 +401,6 @@ class AvenueModel(ap.Model):
             self.ordencoso = [i for i in votacion(self.semaphores[0].orden, self.semaphores[1].orden, self.semaphores[2].orden, self.semaphores[3].orden)]
             self.semaphores[self.ordencoso[0]].set_green()
             
-#             for i in self.semaphores: 
-#                 print(i.orden)
-#             print(self.ordencoso)
         elif self.contadorChilo == (self.p.green+self.p.yellow)*10+1:
             self.semaphores[self.ordencoso[1]].set_green()
         elif self.contadorChilo == (self.p.green+self.p.yellow)*2*10+1:
