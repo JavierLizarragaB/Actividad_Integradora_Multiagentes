@@ -142,6 +142,7 @@ class Vehicle(ap.Agent):
         self.color = toHex((r, g, b))
         self.carType = carTypes[random.randint(0, 2)]
         self.direction = 0
+        self.carril = 0
 
     def setupPos(self, espacio):
         # origen = random.randint(0,1) # genera numero aleatorio entre 0 y 3
@@ -155,14 +156,14 @@ class Vehicle(ap.Agent):
 
         self.step_time = 0.1
         self.speed = 0.0 # velocidad en m/s
-        self.max_speed = 30 # max velocidad en m/s
+        self.max_speed = 25 # max velocidad en m/s
         self.state = 1 # 0 carro choco, 1 carro ok
 
         # self.Fx = (random.random() * directionsX[destino][1]) + directionsX[destino][0]
         # self.Fz = (random.random() * directionsZ[destino][1]) + directionsZ[destino][0]
 
     def currentData(self):
-#         print("Current",self.id)
+        #print("Current",self.id)
         self.model.file.write("{")
         self.model.file.write('"id":' + str(self.id - 1) + ",")
         self.model.file.write('"x":' + str(self.x -self.p.size/2) + ",")
@@ -175,7 +176,7 @@ class Vehicle(ap.Agent):
         return
 
     def initialData(self):
-#         print("Initial",self.id)
+        #print("Initial",self.id)
         self.model.file.write("{")
         self.model.file.write('"id":' + str(self.id - 1) + ",")
         self.model.file.write('"type":' + str(self.carType) + ",")
@@ -216,10 +217,14 @@ class Vehicle(ap.Agent):
         # p = self.model.avenue.positions[self]
 
         min_car_distance = 100000
+        min_car_distance2 = 100000
         for car in self.model.cars:
             if car != self:
-                #verificar si van en la misma direccion y si esta adelante
-                 if (self.direction - car.direction) == 0 and (((-self.x + car.x)*math.cos(angle)) + ((-self.z + car.z)*math.sin(angle))) > 0:
+                d = math.sqrt((self.x - car.x)**2 + (self.z - car.z)**2)
+                if min_car_distance2 > d:
+                    min_car_distance2 = d
+                #verificar si van en la misma direccion y si esta adelante, y si esta en el mismo carril
+                if (self.direction - car.direction) == 0 and (((-self.x + car.x)*math.cos(angle)) + ((-self.z + car.z)*math.sin(angle))) > 0 and self.carril == car.carril:
                     d = math.sqrt((self.x - car.x)**2 + (self.z - car.z)**2)
 
                     if min_car_distance > d:
@@ -241,28 +246,26 @@ class Vehicle(ap.Agent):
             self.speed = 0
             self.state = 1
         elif min_car_distance < 40:
-            if min_car_distance > 25:
-                self.speed = np.maximum(self.speed - 250*self.step_time, 3)
-            elif min_car_distance <= 25:
-                self.speed = np.maximum(self.speed - 250*self.step_time, 0)
-        elif min_car_distance < 60:
             self.speed = np.maximum(self.speed - 120*self.step_time, 0)
-
+        elif min_car_distance < 60:
+              self.speed = np.maximum(self.speed - 90*self.step_time, 2)
         elif min_semaphore_distance < 60 and min_semaphore_distance > 30 and semaphore_state == 1:
-            self.speed = np.minimum(self.speed + 7*self.step_time, self.max_speed)
-
-        elif min_semaphore_distance < 80 and semaphore_state == 1:
-            self.speed = np.maximum(self.speed - 10*self.step_time, 0)
-
+            self.speed = np.maximum(self.speed - 20*self.step_time, 5)
+        elif min_semaphore_distance < 80 and min_semaphore_distance > 30 and semaphore_state == 1:
+            self.speed = np.minimum(self.speed + 2*self.step_time, self.max_speed)
         elif min_semaphore_distance < 100 and semaphore_state == 2:
-            if min_semaphore_distance > 35:
-                self.speed = np.maximum(self.speed - 150*self.step_time, 3)
-            elif min_semaphore_distance <= 35 and min_semaphore_distance > 30:
-                self.speed = np.maximum(self.speed - 150*self.step_time, 0)
-#             self.speed = np.maximum(self.speed - 150*self.step_time, 0)
-#             self.speed = np.minimum(self.speed + 5 * self.step_time, self.max_speed)
+            if min_semaphore_distance > 50:
+                self.speed = np.maximum(self.speed - 100*self.step_time, 6)
+            elif min_semaphore_distance <= 50 and min_semaphore_distance > 42:
+                self.speed = np.maximum(self.speed - 35*self.step_time, 0)
+            elif min_semaphore_distance <= 40:
+                self.speed = np.minimum(self.speed + 4 * self.step_time, self.max_speed)
+
         else:
-            self.speed = np.minimum(self.speed + 5 * self.step_time, self.max_speed)
+            self.speed = np.minimum(self.speed + 3*self.step_time, self.max_speed)
+        if min_car_distance2 < 5:
+            self.speed = 0
+            self.state = 1
 
 
 
@@ -277,30 +280,34 @@ class AvenueModel(ap.Model):
         self.cars = ap.AgentList(self, self.p.cars, Vehicle)
         self.cars.step_time = self.p.step_time
 
-        c_north = int(self.p.cars / 4)
-        c_south = int(self.p.cars / 4)
-        c_east = int(self.p.cars / 4)
-        c_west = self.p.cars - c_east-c_south-c_north
+        # c_north = random.randint(int(self.p.cars/4), int(self.p.cars/3))
+        # c_south = int(self.p.cars/2 - c_north)
+        # c_east = random.randint(int(self.p.cars/4), int(self.p.cars/3))
+        c_north = int(self.p.cars/4)
+        c_south = int(self.p.cars/2 - c_north)
+        c_east = int(self.p.cars/4)
+        c_west = self.p.cars - c_east - c_north - c_south
 
         for k in range(c_north):
-            self.cars[k].direction = 270
+            self.cars[k].direction = 90
         for k in range(c_south):
-            self.cars[k + c_north].direction = 90
+            self.cars[k + c_north].direction = 270
         for k in range(c_east):
             self.cars[k + c_north+c_south].direction = 0
         for k in range(c_west):
             self.cars[k + c_north+c_south+c_east].direction = 180
 
+        # self.semaphore2 TLSameORder
+
         self.semaphores = ap.AgentList(self, 4, TLRandom)
-        # self.semaphore2 = ap.AgentList(self, 1, TLSameORder)
         self.semaphores.step_time = self.p.step_time
         self.semaphores.green_duration = self.p.green
         self.semaphores.yellow_duration = self.p.yellow
 #         self.semaphores.red_duration = self.p.red
         self.semaphores[0].direction = 90
         self.semaphores[1].direction = 270
-        self.semaphores[2].direction = 180
-        self.semaphores[3].direction = 0
+        self.semaphores[2].direction = 0
+        self.semaphores[3].direction = 180
         
 
         # Inicializa el entorno
@@ -316,13 +323,51 @@ class AvenueModel(ap.Model):
         # Agrega los autos al entorno
         self.avenue.add_agents(self.cars, random=True)
         for k in range(c_north):
-            self.avenue.move_to(self.cars[k], [self.p.size*0.5 + 5, self.p.size- self.p.cars*11 +10*(k+1)])
+            if k % 4 == 0:
+                self.cars[k].carril = 0
+                self.avenue.move_to(self.cars[k], [self.p.size*0.5 - 0,-self.p.size+self.p.cars*11 -10*(k+1)])
+            if k % 4 ==1:
+                self.cars[k].carril = 1
+                self.avenue.move_to(self.cars[k], [self.p.size*0.5 - 9,-self.p.size+self.p.cars*11-10*(k+1)])
+            if k % 4 == 2:
+                self.cars[k].carril = 2
+                self.avenue.move_to(self.cars[k], [self.p.size*0.5 - 18,-self.p.size+self.p.cars*11 -10*(k+1)])
+            if k % 4 ==3:
+                self.cars[k].carril = 3
+                self.avenue.move_to(self.cars[k], [self.p.size*0.5 - 27,-self.p.size+self.p.cars*11 -10*(k+1)])
+
         for k in range(c_south):
-            self.avenue.move_to(self.cars[k+c_north], [self.p.size*0.5 - 5, -self.p.size + self.p.cars*11 - (k+1)*10])
+            if k % 3 == 0:
+                self.cars[k+c_north].carril = 0
+                self.avenue.move_to(self.cars[k+c_north], [self.p.size*0.5 + 7, self.p.size - self.p.cars*11 + (k+1)*10])
+            if k % 3 == 1:
+                self.cars[k+c_north].carril = 1
+                self.avenue.move_to(self.cars[k+c_north], [self.p.size*0.5 + 15, self.p.size - self.p.cars*11 + (k+1)*10])
+            if k % 3 == 2:
+                self.cars[k+c_north].carril = 2
+                self.avenue.move_to(self.cars[k+c_north], [self.p.size*0.5 + 21, self.p.size - self.p.cars*11 + (k+1)*10])
+
         for k in range(c_east):
-            self.avenue.move_to(self.cars[k+c_north+c_south], [-self.p.size + self.p.cars*11 - (k+1)*10, self.p.size*0.5 - 5])
+            if k % 3 == 0:
+                self.cars[k+c_north+c_south].carril = 0
+                self.avenue.move_to(self.cars[k+c_north+c_south], [-self.p.size + self.p.cars*11 - (k+1)*10, self.p.size*0.5 + 7])
+            if k % 3 == 1:
+                self.cars[k+c_north+c_south].carril = 1
+                self.avenue.move_to(self.cars[k+c_north+c_south], [-self.p.size + self.p.cars*11 - (k+1)*10, self.p.size*0.5 + 15])
+            if k % 3 == 2:
+                self.cars[k+c_north+c_south].carril = 2
+                self.avenue.move_to(self.cars[k+c_north+c_south], [-self.p.size + self.p.cars*11 - (k+1)*10, self.p.size*0.5 + 21])
+
         for k in range(c_west):
-            self.avenue.move_to(self.cars[k+c_east+c_south+c_north], [self.p.size- self.p.cars*11 +10*(k+1), self.p.size*0.5 + 5])
+            if k % 3 == 0:
+                self.cars[k+c_east+c_south+c_north].carril = 0
+                self.avenue.move_to(self.cars[k+c_east+c_south+c_north], [self.p.size- self.p.cars*11 +10*(k+1), self.p.size*0.5 - 7])
+            if k % 3 == 1:
+                self.cars[k+c_east+c_south+c_north].carril = 1
+                self.avenue.move_to(self.cars[k+c_east+c_south+c_north], [self.p.size- self.p.cars*11 +10*(k+1), self.p.size*0.5 - 15])
+            if k % 3 == 2:
+                self.cars[k+c_east+c_south+c_north].carril = 2
+                self.avenue.move_to(self.cars[k+c_east+c_south+c_north], [self.p.size- self.p.cars*11 +10*(k+1), self.p.size*0.5 - 21])
         
         self.cars.setupPos(self.avenue)
         self.file.write("{")
@@ -386,19 +431,21 @@ class AvenueModel(ap.Model):
 parameters = {
     'step_time': 0.1,    # tiempo de cada paso
     'size': 1000,        # Tamaño en metros de la avenida
-    'green': 3,          # Duración de la luz verde
-    'yellow': 2,         # Duración de la luz amarilla
-    'red': 4,           # Duración de la luz roja
-    'cars': 10,          # Número de autos en la simulación
-    'steps': 500,       # Número de pasos de la simulación
+    'green': 6,          # Duración de la luz verde
+    'yellow': 3,         # Duración de la luz amarilla
+    'red': 10,           # Duración de la luz roja
+    'cars': 30,          # Número de autos en la simulación
+    'steps': 1000,       # Número de pasos de la simulación
 }
 
 
 def main():
-    carAmount = int(input("Cuantos carros quiere simular: "))
-    stepAmount = int(input("Cuantos pasos quiere simular: "))
-    parameters['cars'] = carAmount
-    parameters['steps'] = stepAmount
+    # carAmount = int(input("Cuantos carros quiere simular: "))
+    # stepAmount = int(input("Cuantos pasos quiere simular: "))
+    # carAmount = 24
+    # stepAmount = 1000
+    # parameters['cars'] = carAmount
+    # parameters['steps'] = stepAmount
     model = AvenueModel(parameters)
     results = model.run()
     return
