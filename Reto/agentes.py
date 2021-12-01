@@ -2,20 +2,38 @@ import agentpy as ap
 import numpy as np
 import random
 import math
+# Visualization
+# import matplotlib.pyplot as plt
+# import matplotlib.animation
+# import IPython
 
 
 def toHex(rgb):
     return '%02x%02x%02x' % rgb
 
-
-#               Izquierda   Abajo      Derecha     Arriba
-# directionsX = [[-500, -100],[-0.5, 0.5],[100, 500],[-0.5, 0.5]]
-# directionsZ = [[-0.5, 0.5],[-500, -100],[-0.5, 0.5],[100, 500]]
-# orientation = [0, 90, 180, 270]
-# directionsX = [[-0.5, 0.5],[-0.5, 0.5]]
-# directionsZ = [[-500, -100],[100, 500]]
-
-orientation = [90, 270]
+def votacion(a,b,c,d):
+    #a = [0,1,2,3], prioridades (3->2->1->0)
+    #b = [3,1,2,0], prioridades (0->2->1->3)
+    #total = [3,2,4,3], prioridades (2->0,3->1)
+    total = [a[0]+b[0]+c[0]+d[0], a[1]+b[1]+c[1]+d[1], a[2]+b[2]+c[2]+d[2], a[3]+b[3]+c[3]+d[3]]
+#     heap = [0,0,0,0]
+#     print("total: ")
+#     print(total)
+    answ = []
+    auxpos = 0
+    for i in range(4):
+        aux = 0
+        for ii in range(4):
+            if aux < total[ii]:
+                auxpos = ii
+                aux = total[ii]
+        answ.append(auxpos)
+        total[auxpos] = -1
+#     print("answ: ")
+#     print (answ)
+    return answ
+    
+    
 carTypes = ['"SUV"', '"Sedan"', '"Sport"']
 
 
@@ -23,11 +41,12 @@ carTypes = ['"SUV"', '"Sedan"', '"Sport"']
 class Semaphore(ap.Agent):
     # Esta clase define a un semáforo.
     def setup(self):
+        self.orden = [0,0,0,0]
         self.step_time = 0.1  # Tiempo que dura cada paso de la simulación
 
-        self.direction = orientation[0]  # Dirección a la que apunta el semáforo
+        self.direction = 0  # Dirección a la que apunta el semáforo
 
-        self.state = 0  # Estado del semáforo 0 = verde, 1 = amarillo, 2 = rojo
+        self.state = 2  # Estado del semáforo 0 = verde, 1 = amarillo, 2 = rojo
         self.state_time = 0  # Tiempo que ha durado el semáforo en el estado actual
 
         self.green_duration = 35  # Tiempo que dura el semáforo en verde
@@ -48,15 +67,12 @@ class Semaphore(ap.Agent):
             if self.state_time >= self.yellow_duration:
                 self.state = 2
                 self.state_time = 0
-        elif self.state == 2:
-            # Caso en el que el semáforo está en rojo
-            if self.state_time >= self.red_duration:
-                self.state = 0
-                self.state_time = 0
-
-
+    def set_green(self):
+        """ Este método forza el semáforo a estar en verde. """        
+        self.state = 0
+        self.state_time = 0
     def currentData(self):
-        print("Semaphore",self.id)
+#         print("Semaphore",self.id)
         self.model.file.write("{")
         self.model.file.write('"id":' + str(self.id - 1) + ",")
         self.model.file.write('"state":' + str(self.state) + ",")
@@ -66,6 +82,57 @@ class Semaphore(ap.Agent):
         else:
             self.model.file.write("}")
         return
+
+
+
+class TLRandom(Semaphore):
+    def ordenarSemaphores(self):
+        aux = 0
+        self.orden[0] = random.randint(0,3)
+        aux = random.randint(0,3)
+        while aux == self.orden[0]:
+            aux = random.randint(0,3)
+        self.orden[1] = aux
+        
+        aux = random.randint(0,3)
+        while aux == self.orden[0] or aux == self.orden[1]:
+            aux = random.randint(0,3)
+        self.orden[2] = aux
+        
+        aux = random.randint(0,3)
+        while aux == self.orden[0] or aux == self.orden[1] or aux == self.orden[2]:
+            aux = random.randint(0,3)
+        self.orden[3] = aux
+
+class TLSelf(Semaphore):
+    pass
+
+class TLPriority(Semaphore):
+    pass
+
+class TLSameORder(Semaphore):
+    self.nose = True
+    def ordenarSemaphores(self):
+        if nose:
+            nose = False
+            aux = 0
+            self.orden[0] = random.randint(0,3)
+            aux = random.randint(0,3)
+            while aux == self.orden[0]:
+                aux = random.randint(0,3)
+            self.orden[1] = aux
+
+            aux = random.randint(0,3)
+            while aux == self.orden[0] or aux == self.orden[1]:
+                aux = random.randint(0,3)
+            self.orden[2] = aux
+
+            aux = random.randint(0,3)
+            while aux == self.orden[0] or aux == self.orden[1] or aux == self.orden[2]:
+                aux = random.randint(0,3)
+            self.orden[3] = aux
+
+
 
 class Vehicle(ap.Agent):
     def setup(self):
@@ -95,7 +162,7 @@ class Vehicle(ap.Agent):
         # self.Fz = (random.random() * directionsZ[destino][1]) + directionsZ[destino][0]
 
     def currentData(self):
-        print("Current",self.id)
+#         print("Current",self.id)
         self.model.file.write("{")
         self.model.file.write('"id":' + str(self.id - 1) + ",")
         self.model.file.write('"x":' + str(self.x -self.p.size/2) + ",")
@@ -108,7 +175,7 @@ class Vehicle(ap.Agent):
         return
 
     def initialData(self):
-        print("Initial",self.id)
+#         print("Initial",self.id)
         self.model.file.write("{")
         self.model.file.write('"id":' + str(self.id - 1) + ",")
         self.model.file.write('"type":' + str(self.carType) + ",")
@@ -152,7 +219,7 @@ class Vehicle(ap.Agent):
         for car in self.model.cars:
             if car != self:
                 #verificar si van en la misma direccion y si esta adelante
-                if (self.direction - car.direction) == 0 and (((-self.x + car.x)*math.cos(angle)) + ((-self.z + car.z)*math.sin(angle))) > 0:
+                 if (self.direction - car.direction) == 0 and (((-self.x + car.x)*math.cos(angle)) + ((-self.z + car.z)*math.sin(angle))) > 0:
                     d = math.sqrt((self.x - car.x)**2 + (self.z - car.z)**2)
 
                     if min_car_distance > d:
@@ -167,27 +234,37 @@ class Vehicle(ap.Agent):
                 if min_semaphore_distance > d:
                     min_semaphore_distance = d
                     semaphore_state = semaphore.state
-                # Actualiza la velocidad del auto
-        if min_car_distance < 2:
+        
+        
+        # Actualiza la velocidad del auto
+        if min_car_distance < 5:
             self.speed = 0
             self.state = 1
-
         elif min_car_distance < 40:
-              self.speed = np.maximum(self.speed - 250*self.step_time, 0)
-
+            if min_car_distance > 25:
+                self.speed = np.maximum(self.speed - 250*self.step_time, 3)
+            elif min_car_distance <= 25:
+                self.speed = np.maximum(self.speed - 250*self.step_time, 0)
         elif min_car_distance < 60:
-              self.speed = np.maximum(self.speed - 120*self.step_time, 0)
-                
-        elif min_semaphore_distance < 60 and min_semaphore_distance > 30 and semaphore_state == 1:
-            self.speed = np.minimum(self.speed + 2*self.step_time, self.max_speed)
+            self.speed = np.maximum(self.speed - 120*self.step_time, 0)
 
-        elif min_semaphore_distance < 80 and min_semaphore_distance > 30 and semaphore_state == 1:
+        elif min_semaphore_distance < 60 and min_semaphore_distance > 30 and semaphore_state == 1:
+            self.speed = np.minimum(self.speed + 7*self.step_time, self.max_speed)
+
+        elif min_semaphore_distance < 80 and semaphore_state == 1:
             self.speed = np.maximum(self.speed - 10*self.step_time, 0)
-            
-        elif min_semaphore_distance < 100 and min_semaphore_distance > 30 and semaphore_state == 2:
-            self.speed = np.maximum(self.speed - 100*self.step_time, 0)
+
+        elif min_semaphore_distance < 100 and semaphore_state == 2:
+            if min_semaphore_distance > 35:
+                self.speed = np.maximum(self.speed - 150*self.step_time, 3)
+            elif min_semaphore_distance <= 35 and min_semaphore_distance > 30:
+                self.speed = np.maximum(self.speed - 150*self.step_time, 0)
+#             self.speed = np.maximum(self.speed - 150*self.step_time, 0)
+#             self.speed = np.minimum(self.speed + 5 * self.step_time, self.max_speed)
         else:
             self.speed = np.minimum(self.speed + 5 * self.step_time, self.max_speed)
+
+
 
 class AvenueModel(ap.Model):
     """ Esta clase define un modelo para una avenida simple con semáforo peatonal. """
@@ -200,22 +277,31 @@ class AvenueModel(ap.Model):
         self.cars = ap.AgentList(self, self.p.cars, Vehicle)
         self.cars.step_time = self.p.step_time
 
-        c_north = int(self.p.cars / 2)
-        c_south = self.p.cars - c_north
+        c_north = int(self.p.cars / 4)
+        c_south = int(self.p.cars / 4)
+        c_east = int(self.p.cars / 4)
+        c_west = self.p.cars - c_east-c_south-c_north
 
         for k in range(c_north):
             self.cars[k].direction = 270
-
         for k in range(c_south):
             self.cars[k + c_north].direction = 90
+        for k in range(c_east):
+            self.cars[k + c_north+c_south].direction = 0
+        for k in range(c_west):
+            self.cars[k + c_north+c_south+c_east].direction = 180
 
-        self.semaphores = ap.AgentList(self, 2, Semaphore)
+        self.semaphores = ap.AgentList(self, 3, TLRandom)
+        self.semaphores = ap.AgentList(self, 1, TLSameORder)
         self.semaphores.step_time = self.p.step_time
         self.semaphores.green_duration = self.p.green
         self.semaphores.yellow_duration = self.p.yellow
-        self.semaphores.red_duration = self.p.red
+#         self.semaphores.red_duration = self.p.red
         self.semaphores[0].direction = 90
         self.semaphores[1].direction = 270
+        self.semaphores[2].direction = 180
+        self.semaphores[3].direction = 0
+        
 
         # Inicializa el entorno
         self.avenue = ap.Space(self, shape=[self.p.size, self.p.size], torus = True)
@@ -224,14 +310,19 @@ class AvenueModel(ap.Model):
         self.avenue.add_agents(self.semaphores, random=True)
         self.avenue.move_to(self.semaphores[0], [self.p.size*0.5 - 5, self.p.size*0.5 + 5])
         self.avenue.move_to(self.semaphores[1], [self.p.size*0.5 + 5, self.p.size*0.5 - 5])
+        self.avenue.move_to(self.semaphores[2], [self.p.size*0.5 + 5, self.p.size*0.5 + 5])
+        self.avenue.move_to(self.semaphores[3], [self.p.size*0.5 - 5, self.p.size*0.5 - 5])
 
         # Agrega los autos al entorno
         self.avenue.add_agents(self.cars, random=True)
         for k in range(c_north):
             self.avenue.move_to(self.cars[k], [self.p.size*0.5 + 5, self.p.size- self.p.cars*11 +10*(k+1)])
-        
         for k in range(c_south):
             self.avenue.move_to(self.cars[k+c_north], [self.p.size*0.5 - 5, -self.p.size + self.p.cars*11 - (k+1)*10])
+        for k in range(c_east):
+            self.avenue.move_to(self.cars[k+c_north+c_south], [-self.p.size + self.p.cars*11 - (k+1)*10, self.p.size*0.5 - 5])
+        for k in range(c_west):
+            self.avenue.move_to(self.cars[k+c_east+c_south+c_north], [self.p.size- self.p.cars*11 +10*(k+1), self.p.size*0.5 + 5])
         
         self.cars.setupPos(self.avenue)
         self.file.write("{")
@@ -239,9 +330,28 @@ class AvenueModel(ap.Model):
         self.cars.initialData()
         self.file.write("],")
         self.file.write('"frames": [')
+        
+        self.cosofeo = (self.p.green+self.p.yellow)*10*4
+        self.contadorChilo = 0
+        self.ordencoso = [0,0,0,0]
 
     def step(self):
-      
+        if self.contadorChilo > self.cosofeo or self.contadorChilo == 0:
+            self.contadorChilo = 0
+            self.semaphores.ordenarSemaphores()
+            self.ordencoso = [i for i in votacion(self.semaphores[0].orden, self.semaphores[1].orden, self.semaphores[2].orden, self.semaphores[3].orden)]
+            self.semaphores[self.ordencoso[0]].set_green()
+            
+#             for i in self.semaphores: 
+#                 print(i.orden)
+#             print(self.ordencoso)
+        elif self.contadorChilo == (self.p.green+self.p.yellow)*10+1:
+            self.semaphores[self.ordencoso[1]].set_green()
+        elif self.contadorChilo == (self.p.green+self.p.yellow)*2*10+1:
+            self.semaphores[self.ordencoso[2]].set_green()
+        elif self.contadorChilo == (self.p.green+self.p.yellow)*3*10+1:
+            self.semaphores[self.ordencoso[3]].set_green()
+
         self.file.write("{")
         self.file.write('"frame": '+str(self.frame)+",")
         self.file.write('"cars": [')
@@ -265,7 +375,13 @@ class AvenueModel(ap.Model):
             self.file.write("]}")
             self.file.close()
             self.stop()
+            
+        self.contadorChilo = self.contadorChilo + 1
         return
+
+    
+
+
 
 parameters = {
     'step_time': 0.1,    # tiempo de cada paso
@@ -274,8 +390,10 @@ parameters = {
     'yellow': 2,         # Duración de la luz amarilla
     'red': 4,           # Duración de la luz roja
     'cars': 10,          # Número de autos en la simulación
-    'steps': 400,       # Número de pasos de la simulación
+    'steps': 500,       # Número de pasos de la simulación
 }
+
+
 def main():
     carAmount = int(input("Cuantos carros quiere simular: "))
     stepAmount = int(input("Cuantos pasos quiere simular: "))
@@ -287,3 +405,39 @@ def main():
 
 
 main()
+
+
+# def animation_plot_single(m, ax):    
+#     ax.set_title(f"Avenida t={m.t*m.p.step_time:.2f}")
+    
+#     colors = ["green", "yellow", "red"]
+    
+#     pos_s1 = m.avenue.positions[m.semaphores[0]]    
+#     ax.scatter(*pos_s1, s=20, c=colors[m.semaphores[0].state])
+    
+#     pos_s2 = m.avenue.positions[m.semaphores[1]]    
+#     ax.scatter(*pos_s2, s=20, c=colors[m.semaphores[1].state])
+
+#     pos_s1 = m.avenue.positions[m.semaphores[2]]    
+#     ax.scatter(*pos_s1, s=20, c=colors[m.semaphores[2].state])
+    
+#     pos_s2 = m.avenue.positions[m.semaphores[3]]    
+#     ax.scatter(*pos_s2, s=20, c=colors[m.semaphores[3].state])
+
+#     ax.set_xlim(0, m.avenue.shape[0])
+#     ax.set_ylim(0, m.avenue.shape[1])    
+    
+#     for car in m.cars:
+#         pos_c = m.avenue.positions[car]    
+#         ax.scatter(*pos_c, s=20, c="black")
+    
+#     ax.set_axis_off()
+#     ax.set_aspect('equal', 'box')
+        
+# def animation_plot(m, p):    
+#     fig = plt.figure(figsize=(10, 10))
+#     ax = fig.add_subplot(111)
+#     animation = ap.animate(m(p), fig, ax, animation_plot_single)
+#     return IPython.display.HTML(animation.to_jshtml(fps=20)) 
+
+# animation_plot(AvenueModel, parameters)
