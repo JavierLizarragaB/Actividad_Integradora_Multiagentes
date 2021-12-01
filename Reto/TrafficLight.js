@@ -27,7 +27,7 @@ class Semafor extends THREE.Group {
                 // SOLID
                 object.traverse(function (child) {
                     if (child.isMesh) {
-                        child.material = new THREE.MeshBasicMaterial({
+                        child.material = new THREE.MeshPhongMaterial({
                             color: trafficLight.color
                         });
                     }
@@ -44,6 +44,8 @@ class Semafor extends THREE.Group {
                     }
                 });
                 // CHILDREN
+                trafficLight.solid.castShadow = true;
+                trafficLight.solid.receiveShadow = true;
                 trafficLight.add(trafficLight.solid);
                 trafficLight.add(trafficLight.wire);
                 scene.add(trafficLight);

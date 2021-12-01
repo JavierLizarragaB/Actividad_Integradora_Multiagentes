@@ -3,6 +3,7 @@ import {Axes} from './Axes.js';
 import {Building} from './Building.js';
 import {Floor} from './Floor.js';
 import {Semafor} from './TrafficLight.js';
+import {DirectionalLight} from './Lights.js';
 
 "use strict";
 
@@ -11,6 +12,7 @@ class Scenary extends THREE.Group {
         super();
         this.axes = new Axes(ScenaryMenu, size);
         this.floor = new Floor(size);
+        
         this.buildings = [];
         this.semafors = [];
         this.areVisible = true;
@@ -19,6 +21,36 @@ class Scenary extends THREE.Group {
         this.visibleTexture = true;
         this.color = 0x991515;
         this.wireColor = 0xffffff;
+
+        let skyGeo = new THREE.BoxGeometry(size, size, size);
+        let skyMat = [
+            new THREE.MeshBasicMaterial({
+                map: new THREE.TextureLoader().load("./img/skybox/elyvisions/sp2_ft.png"),
+                side: THREE.DoubleSide
+            }),
+            new THREE.MeshBasicMaterial({
+                map: new THREE.TextureLoader().load("./img/skybox/elyvisions/sp2_bk.png"),
+                side: THREE.DoubleSide
+            }),
+            new THREE.MeshBasicMaterial({
+                map: new THREE.TextureLoader().load("./img/skybox/elyvisions/sp2_up.png"),
+                side: THREE.DoubleSide
+            }),
+            new THREE.MeshBasicMaterial({
+                map: new THREE.TextureLoader().load("./img/skybox/elyvisions/sp2_dn.png"),
+                side: THREE.DoubleSide
+            }),
+            new THREE.MeshBasicMaterial({
+                map: new THREE.TextureLoader().load("./img/skybox/elyvisions/sp2_rt.png"),
+                side: THREE.DoubleSide
+            }),
+            new THREE.MeshBasicMaterial({
+                map: new THREE.TextureLoader().load("./img/skybox/elyvisions/sp2_lf.png"),
+                side: THREE.DoubleSide
+            })
+        ];
+        this.sky = new THREE.Mesh(skyGeo, skyMat);
+
         //SE
         this.buildings.push(new Building(56, 56, 50, 50, 50));
         this.buildings.push(new Building(56, 110, 50, 50, 10));
@@ -82,6 +114,7 @@ class Scenary extends THREE.Group {
         this.semafors.push(new Semafor(TraficLightMenu, scene, -32, -18, -0.05, "SE"));
 
         // CHILDREN
+        this.add(this.sky);
         this.add(this.axes);
         this.add(this.floor);
         for (let i = 0; i < this.buildings.length; i++) {
@@ -150,7 +183,7 @@ class Scenary extends THREE.Group {
     }
     setDoubleSide(value = true) {
         this.buildings.forEach(edificio => {
-            edificio.doubleSide = value
+            edificio.setDoubleSide(value);
         });
     }
     setColor(hexColor = 0x991313) {

@@ -16,35 +16,35 @@ class Building extends THREE.Group {
         this.visibleTexture = true;
         this.rotate = false;
         const geometry = new THREE.BoxGeometry(front, height, depth);
-        const material = new THREE.MeshBasicMaterial({
+        const material = new THREE.MeshPhongMaterial({
             color
         });
-        const materialWire = new THREE.MeshBasicMaterial({
+        const materialWire = new THREE.MeshPhongMaterial({
             wireframe: true,
             color: wireColor
         });
         const materialTexture = [
-            new THREE.MeshBasicMaterial({
+            new THREE.MeshPhongMaterial({
                 map: new THREE.TextureLoader().load("./img/edificio.jpg"),
                 side: THREE.FrontSide
             }),
-            new THREE.MeshBasicMaterial({
+            new THREE.MeshPhongMaterial({
                 map: new THREE.TextureLoader().load("./img/edificio.jpg"),
                 side: THREE.FrontSide
             }),
-            new THREE.MeshBasicMaterial({
+            new THREE.MeshPhongMaterial({
                 map: new THREE.TextureLoader().load("./img/roof.jpeg"),
                 side: THREE.FrontSide
             }),
-            new THREE.MeshBasicMaterial({
+            new THREE.MeshPhongMaterial({
                 map: new THREE.TextureLoader().load("./img/edificio.jpg"),
                 side: THREE.FrontSide
             }),
-            new THREE.MeshBasicMaterial({
+            new THREE.MeshPhongMaterial({
                 map: new THREE.TextureLoader().load("./img/edificio.jpg"),
                 side: THREE.FrontSide
             }),
-            new THREE.MeshBasicMaterial({
+            new THREE.MeshPhongMaterial({
                 map: new THREE.TextureLoader().load("./img/edificio.jpg"),
                 side: THREE.FrontSide
             })
@@ -52,6 +52,10 @@ class Building extends THREE.Group {
         this.texture = new THREE.Mesh(geometry, materialTexture);
         this.solid = new THREE.Mesh(geometry, material);
         this.wire = new THREE.Mesh(geometry, materialWire);
+        this.texture.castShadow = true;
+        this.texture.receiveShadow = true;
+        this.solid.castShadow = true;
+        this.solid.receiveShadow = true;
         // CHILDREN
         this.add(this.solid);
         this.add(this.wire);
@@ -62,6 +66,16 @@ class Building extends THREE.Group {
         this.solid.geometry.computeBoundingBox();
         const bBox = this.solid.geometry.boundingBox;
         this.position.y = -bBox.min.y;
+    }
+    setDoubleSide(value){
+        if(value){
+            this.solid.material.side = THREE.DoubleSide;
+            this.texture.material.side = THREE.DoubleSide;
+        }
+        else{
+            this.solid.material.side = THREE.FrontSide;
+            this.texture.material.side = THREE.FrontSide;
+        }
     }
 }
 

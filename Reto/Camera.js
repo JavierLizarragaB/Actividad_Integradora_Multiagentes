@@ -47,7 +47,7 @@ class Camera extends THREE.PerspectiveCamera {
         this.internalView = false;
         this.perspectiveView = false;
 
-        this.position.set(0, 600, 0);
+        this.position.set(0, 450, 0);
         this.orbitControls.target = new THREE.Vector3(0, 0, 0);
         this.up.set(-1, 0, 0);
         this.orbitControls.update();

@@ -31,7 +31,7 @@ class Car extends THREE.Group {
                 // SOLID
                 object.traverse(function (child) {
                     if (child.isMesh) {
-                        child.material = new THREE.MeshBasicMaterial({
+                        child.material = new THREE.MeshPhongMaterial({
                             color: thisAutomobil.color
                         });
                     }
@@ -50,6 +50,8 @@ class Car extends THREE.Group {
                 //model.rotation.y = Math.PI;
                 thisAutomobil.scale.set(2, 2, 2);
                 // CHILDREN
+                thisAutomobil.solid.castShadow = true;
+                thisAutomobil.solid.receiveShadow = true;
                 thisAutomobil.add(thisAutomobil.solid);
                 thisAutomobil.add(thisAutomobil.wire);
                 scene.add(thisAutomobil);

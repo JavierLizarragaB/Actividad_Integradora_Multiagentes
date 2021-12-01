@@ -1,10 +1,21 @@
 import * as THREE from 'https://unpkg.com/three/build/three.module.js';
 import Stats from "https://unpkg.com/three/examples/jsm/libs/stats.module.js";
 
-import {Camera} from './Camera.js';
-import {Car} from './Car.js';
-import {Scenary} from './Scenary.js';
-import {View} from './View.js';
+import {
+    Camera
+} from './Camera.js';
+import {
+    Car
+} from './Car.js';
+import {
+    Scenary
+} from './Scenary.js';
+import {
+    View
+} from './View.js';
+import {
+    DirectionalLight
+} from './Lights.js';
 
 "use strict";
 
@@ -23,13 +34,32 @@ function init(event) {
     vehicleMenu = gui.addFolder("Vehicles");
 
     renderer = new View();
-    camera = [new Camera(cameraMenu, renderer)];
+    camera = [];
+    camera.push(new Camera(cameraMenu, renderer));
+    camera.push(new Camera(cameraMenu, renderer));
+    camera.push(new Camera(cameraMenu, renderer));
+    camera.push(new Camera(cameraMenu, renderer));
     camera[0].setTopView();
-    
+    camera[1].setFrontView();
+    camera[2].setPerspective();
+    camera[3].setSideView();
+
+    sceneMenu.add(renderer, "viewports").setValue(renderer.viewports).min(1).max(4).step(1).name("Viewport").listen().onChange((value) => renderer.setViews(value));
+
     scene = new THREE.Scene();
     scenary = new Scenary(trafficLightMenu, buildingMenu, sceneMenu, scene);
     scene.add(scenary);
-    
+    const light = new DirectionalLight();
+    scene.add(light);
+
+    const lightMenu = gui.addFolder("DirectionalLight Menu");
+    lightMenu.add(light, "visible").name("On").setValue(light.visible).listen().onChange(function (value) {});
+    lightMenu.add(light.position, "x").name("x").min(-50).max(50).step(0.1).setValue(0).listen().onChange(function (value) {});
+    lightMenu.addColor(light, "strColor").name("Color").setValue(light.strColor).listen().onChange(function (value) {
+        light.setColor(value);
+    });
+    lightMenu.add(light, "intensity").name("Intensity").min(0).max(1).step(0.1).setValue(light.intensity).listen().onChange(function (value) {});
+
     stats = new Stats();
     stats.showPanel(0);
     document.body.appendChild(stats.dom);
@@ -44,26 +74,30 @@ function init(event) {
         });
         renderLoop();
     });
-
 }
+
 function renderLoop() {
     stats.begin();
-    renderer.views[0].render(scene, camera[0]); // DRAW THE SCENE GRAPH
     updateScene();
     stats.end();
     requestAnimationFrame(renderLoop);
 }
+
 function updateScene() {
+    renderer.renderViews(scene, camera);
+    // Move Cars
     data.frames[frameIndex].cars.forEach(vehicle => {
         let car = automobiles[vehicle.id];
         car.setPosition(vehicle.x, vehicle.z);
         car.setDirection(vehicle.dir);
     });
+    // Update Traffic Lights
     scenary.setTrafficLights(data.frames[frameIndex]);
     if (frameIndex < data.frames.length - 1) frameIndex++;
     if (camera[0].autoRotate) camera[0].orbitControls.update();
-    if(camera[0].internalView) camera[0].setInternalView(camera[0].carTarget);
+    if (camera[0].internalView) camera[0].setInternalView(camera[0].carTarget);
 }
+
 function readTextFile(file, callback) {
     var rawFile = new XMLHttpRequest();
     rawFile.overrideMimeType("application/json");
@@ -78,6 +112,6 @@ function readTextFile(file, callback) {
 window.addEventListener("resize", () => {
     camera[0].aspect = window.innerWidth / window.innerHeight;
     camera[0].updateProjectionMatrix();
-    renderer.reset();
+    renderer.setViews(1);
 }, false);
 document.addEventListener("DOMContentLoaded", init);
