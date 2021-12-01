@@ -291,8 +291,8 @@ class AvenueModel(ap.Model):
         for k in range(c_west):
             self.cars[k + c_north+c_south+c_east].direction = 180
 
-        self.semaphores = ap.AgentList(self, 3, TLRandom)
-        self.semaphores = ap.AgentList(self, 1, TLSameORder)
+        self.semaphores = ap.AgentList(self, 4, TLRandom)
+        # self.semaphore2 = ap.AgentList(self, 1, TLSameORder)
         self.semaphores.step_time = self.p.step_time
         self.semaphores.green_duration = self.p.green
         self.semaphores.yellow_duration = self.p.yellow
