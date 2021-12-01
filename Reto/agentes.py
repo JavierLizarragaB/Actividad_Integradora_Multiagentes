@@ -257,9 +257,9 @@ class Vehicle(ap.Agent):
             self.speed = 0
             self.state = 1
         elif min_car_distance < 40:
-            self.speed = np.maximum(self.speed - 120*self.step_time, 0)
+            self.speed = np.maximum(self.speed - 160*self.step_time, 0)
         elif min_car_distance < 60:
-              self.speed = np.maximum(self.speed - 90*self.step_time, 2)
+              self.speed = np.maximum(self.speed - 120*self.step_time, 2)
         elif min_semaphore_distance < 60 and min_semaphore_distance > 30 and semaphore_state == 1:
             self.speed = np.maximum(self.speed - 20*self.step_time, 5)
         elif min_semaphore_distance < 80 and min_semaphore_distance > 30 and semaphore_state == 1:
@@ -291,12 +291,12 @@ class AvenueModel(ap.Model):
         self.cars = ap.AgentList(self, self.p.cars, Vehicle)
         self.cars.step_time = self.p.step_time
 
-        # c_north = random.randint(int(self.p.cars/4), int(self.p.cars/3))
+        c_north = random.randint(1, int(self.p.cars/3))
         # c_south = int(self.p.cars/2 - c_north)
-        # c_east = random.randint(int(self.p.cars/4), int(self.p.cars/3))
-        c_north = int(self.p.cars/4)
+        c_east = random.randint(1, int(self.p.cars/3))
+        # c_north = int(self.p.cars/4)
         c_south = int(self.p.cars/2 - c_north)
-        c_east = int(self.p.cars/4)
+        # c_east = int(self.p.cars/4)
         c_west = self.p.cars - c_east - c_north - c_south
 
         for k in range(c_north):
