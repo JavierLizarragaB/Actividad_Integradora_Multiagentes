@@ -121,7 +121,7 @@ class Semaphore(ap.Agent):
                 return
         elif self.type == 2: #semaforo que escoge a si mismo nomas
             self.orden = [1,1,1,1]
-            self.orden[self.id-self.p.cars] = 3
+            self.orden[self.id-self.p.cars-1] = 3
             return
         elif self.type == 3: #semaforo que escoge quien tenga mas carros
             prioriadorsmt = [0,0,0,0]
