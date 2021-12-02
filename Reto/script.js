@@ -21,6 +21,7 @@ import {
 
 let renderer, scene, stats, data, scenary;
 let camera;
+let pause = false;
 let gui, sceneMenu, buildingMenu, trafficLightMenu, vehicleMenu;
 let frameIndex = 0;
 let automobiles = [];
@@ -88,7 +89,7 @@ function updateScene() {
     });
     // Update Traffic Lights
     scenary.setTrafficLights(data.frames[frameIndex]);
-    if (frameIndex < data.frames.length - 1) frameIndex++;
+    if (!pause && frameIndex < data.frames.length - 1) frameIndex++;
     if (camera[0].autoRotate) camera[0].orbitControls.update();
     if (camera[0].internalView) camera[0].setInternalView(camera[0].carTarget);
 }
@@ -111,11 +112,27 @@ window.addEventListener("resize", () => {
 }, false);
 document.addEventListener("DOMContentLoaded", init);
 document.addEventListener('keypress', key => {
-    if(key.key == "r"){
+    if(key.key == "e"){
         camera[0].setTopView();
         camera[1].setFrontView();
         camera[2].setPerspective();
         camera[3].setSideView();
         renderer.setViews(1);
     }
+    else if(key.key == "p")
+        frameIndex = 0;
+    else if(key.key == "1")
+        renderer.viewports = 1;
+    else if(key.key == "2")
+        renderer.viewports = 2;
+    else if(key.key == "3")
+        renderer.viewports = 3;
+    else if(key.key == "4")
+        renderer.viewports = 4;
+    else if(key.key == ' ' || key.key == 'k') // Space
+        pause = !pause;
+    else if(key.key == 'j') // Left
+        frameIndex = Math.max(0, frameIndex-1);
+    else if(key.key == 'l') // Right
+        frameIndex = Math.min(data.frames.length, frameIndex+1);
 });
