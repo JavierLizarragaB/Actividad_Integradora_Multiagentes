@@ -4,6 +4,8 @@ import {Building} from './Building.js';
 import {Floor} from './Floor.js';
 import {Semafor} from './TrafficLight.js';
 import {DirectionalLight} from './Lights.js';
+import {Model} from './Model.js';
+
 
 "use strict";
 
@@ -13,6 +15,7 @@ class Scenary extends THREE.Group {
         this.axes = new Axes(ScenaryMenu, size);
         this.floor = new Floor(size);
         
+        this.model = [];
         this.buildings = [];
         this.semafors = [];
         this.areVisible = true;
@@ -51,67 +54,69 @@ class Scenary extends THREE.Group {
         ];
         this.sky = new THREE.Mesh(skyGeo, skyMat);
 
-        //SE
-        this.buildings.push(new Building(56, 56, 50, 50, 50));
-        this.buildings.push(new Building(56, 110, 50, 50, 10));
-        this.buildings.push(new Building(56, 165, 50, 50, 20));
-        this.buildings.push(new Building(56, 220, 50, 50, 80));
-        this.buildings.push(new Building(56, 275, 50, 50, 40));
+        // //SE
+        // this.buildings.push(new Building(56, 56, 50, 50, 50));
+        // this.buildings.push(new Building(56, 110, 50, 50, 10));
+        // this.buildings.push(new Building(56, 165, 50, 50, 20));
+        // this.buildings.push(new Building(56, 220, 50, 50, 80));
+        // this.buildings.push(new Building(56, 275, 50, 50, 40));
 
-        this.buildings.push(new Building(110, 56, 50, 50, 10));
-        this.buildings.push(new Building(165, 56, 50, 50, 30));
-        this.buildings.push(new Building(220, 56, 50, 50, 50));
-        this.buildings.push(new Building(275, 56, 50, 50, 10));
-        this.buildings.push(new Building(332, 56, 50, 50, 40));
-
-        
-
-        // SW (Tec)
-        this.buildings.push(new Building(-56, 56, 50, 50, 5));
-        this.buildings.push(new Building(-56, 110, 50, 50, 5));
-        this.buildings.push(new Building(-56, 165, 50, 50, 5));
-        this.buildings.push(new Building(-56, 220, 50, 50, 5));
-
-        this.buildings.push(new Building(-56, 56, 50, 50, 10));
-        this.buildings.push(new Building(-110, 56, 50, 50, 20));
-        this.buildings.push(new Building(-165, 56, 50, 50, 20));
-        this.buildings.push(new Building(-225, 56, 50, 50, 20));
-        this.buildings.push(new Building(-280, 56, 50, 50, 20));
+        // this.buildings.push(new Building(110, 56, 50, 50, 10));
+        // this.buildings.push(new Building(165, 56, 50, 50, 30));
+        // this.buildings.push(new Building(220, 56, 50, 50, 50));
+        // this.buildings.push(new Building(275, 56, 50, 50, 10));
+        // this.buildings.push(new Building(332, 56, 50, 50, 40));
 
         
 
-        // NE
-        this.buildings.push(new Building(56, -56, 50, 50, 10));
-        this.buildings.push(new Building(110, -56, 50, 50, 20));
-        this.buildings.push(new Building(165, -56, 50, 50, 20));
-        this.buildings.push(new Building(225, -56, 50, 50, 20));
-        this.buildings.push(new Building(280, -56, 50, 50, 20));
+        // // SW (Tec)
+        // this.buildings.push(new Building(-56, 56, 50, 50, 5));
+        // this.buildings.push(new Building(-56, 110, 50, 50, 5));
+        // this.buildings.push(new Building(-56, 165, 50, 50, 5));
+        // this.buildings.push(new Building(-56, 220, 50, 50, 5));
 
-        this.buildings.push(new Building(56, -110, 50, 50, 10));
-        this.buildings.push(new Building(56, -165, 50, 50, 20));
-        this.buildings.push(new Building(56, -220, 50, 50, 20));
-        this.buildings.push(new Building(56, -275, 50, 50, 20));
-        this.buildings.push(new Building(56, -330, 50, 50, 20));
+        // this.buildings.push(new Building(-56, 56, 50, 50, 10));
+        // this.buildings.push(new Building(-110, 56, 50, 50, 20));
+        // this.buildings.push(new Building(-165, 56, 50, 50, 20));
+        // this.buildings.push(new Building(-225, 56, 50, 50, 20));
+        // this.buildings.push(new Building(-280, 56, 50, 50, 20));
 
         
 
-        // NW
-        this.buildings.push(new Building(-56, -56, 50, 50, 10));
-        this.buildings.push(new Building(-110, -56, 50, 50, 20));
-        this.buildings.push(new Building(-165, -56, 50, 50, 20));
-        this.buildings.push(new Building(-225, -56, 50, 50, 20));
-        this.buildings.push(new Building(-280, -56, 50, 50, 20));
+        // // NE
+        // this.buildings.push(new Building(56, -56, 50, 50, 10));
+        // this.buildings.push(new Building(110, -56, 50, 50, 20));
+        // this.buildings.push(new Building(165, -56, 50, 50, 20));
+        // this.buildings.push(new Building(225, -56, 50, 50, 20));
+        // this.buildings.push(new Building(280, -56, 50, 50, 20));
 
-        this.buildings.push(new Building(-56, -110, 50, 50, 10));
-        this.buildings.push(new Building(-56, -165, 50, 50, 20));
-        this.buildings.push(new Building(-56, -220, 50, 50, 20));
-        this.buildings.push(new Building(-56, -275, 50, 50, 20));
-        this.buildings.push(new Building(-56, -330, 50, 50, 20));
+        // this.buildings.push(new Building(56, -110, 50, 50, 10));
+        // this.buildings.push(new Building(56, -165, 50, 50, 20));
+        // this.buildings.push(new Building(56, -220, 50, 50, 20));
+        // this.buildings.push(new Building(56, -275, 50, 50, 20));
+        // this.buildings.push(new Building(56, -330, 50, 50, 20));
+
+        
+
+        // // NW
+        // this.buildings.push(new Building(-56, -56, 50, 50, 10));
+        // this.buildings.push(new Building(-110, -56, 50, 50, 20));
+        // this.buildings.push(new Building(-165, -56, 50, 50, 20));
+        // this.buildings.push(new Building(-225, -56, 50, 50, 20));
+        // this.buildings.push(new Building(-280, -56, 50, 50, 20));
+
+        // this.buildings.push(new Building(-56, -110, 50, 50, 10));
+        // this.buildings.push(new Building(-56, -165, 50, 50, 20));
+        // this.buildings.push(new Building(-56, -220, 50, 50, 20));
+        // this.buildings.push(new Building(-56, -275, 50, 50, 20));
+        // this.buildings.push(new Building(-56, -330, 50, 50, 20));
 
         this.semafors.push(new Semafor(TraficLightMenu, scene, -18, 32, Math.PI / 2 - 0.05, "SW"));
         this.semafors.push(new Semafor(TraficLightMenu, scene, 18, -32, -Math.PI / 2 - 0.05, "NW"));
         this.semafors.push(new Semafor(TraficLightMenu, scene, 32, 18, Math.PI - 0.05, "NE"));
         this.semafors.push(new Semafor(TraficLightMenu, scene, -32, -18, -0.05, "SE"));
+
+        this.model.push(new Model(scene, 0, 0, 3));
 
         // CHILDREN
         this.add(this.sky);
