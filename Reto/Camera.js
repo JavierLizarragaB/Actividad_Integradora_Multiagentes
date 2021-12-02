@@ -4,7 +4,7 @@ import {OrbitControls} from "https://unpkg.com/three@0.119.0/examples/jsm/contro
 "use strict";
 
 class Camera extends THREE.PerspectiveCamera {
-    constructor(menu, renderer, fov = 60, aspect = window.innerWidth / window.innerHeight, near = 0.01, far = 10000.0) {
+    constructor(renderer, fov = 60, aspect = window.innerWidth / window.innerHeight, near = 0.01, far = 10000.0) {
         super(fov, aspect, near, far);
         this.orbitControls = new OrbitControls(this, renderer.domElement);
         this.orbitControls.update();
@@ -15,13 +15,6 @@ class Camera extends THREE.PerspectiveCamera {
         this.carTarget;
         this.perspectiveView = false;
         this.autoRotate = false;
-
-        menu.add(this, "autoRotate").setValue(this.autoRotate).name("Auto Rotate").listen().onChange((value) => this.setAutoRotate(value));
-        menu.add(this, "topView").setValue(this.topView).name("Top View").listen().onChange((value) => this.setTopView());
-        menu.add(this, "frontView").setValue(this.frontView).name("Front View").listen().onChange((value) => this.setFrontView());
-        menu.add(this, "sideView").setValue(this.sideView).name("Side View").listen().onChange((value) => this.setSideView());
-        menu.add(this, "perspectiveView").setValue(this.perspectiveView).name("Perspective View").listen().onChange((value) => this.setPerspective());
-        /* - */
     }
     setAutoRotate(value) {
         this.autoRotate = value;
@@ -47,7 +40,7 @@ class Camera extends THREE.PerspectiveCamera {
         this.internalView = false;
         this.perspectiveView = false;
 
-        this.position.set(0, 450, 0);
+        this.position.set(0, 150, 0);
         this.orbitControls.target = new THREE.Vector3(0, 0, 0);
         this.up.set(-1, 0, 0);
         this.orbitControls.update();
