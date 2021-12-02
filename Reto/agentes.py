@@ -300,9 +300,9 @@ class AvenueModel(ap.Model):
         c_west = self.p.cars - c_east - c_north - c_south
 
         for k in range(c_north):
-            self.cars[k].direction = 90
+            self.cars[k].direction = 270
         for k in range(c_south):
-            self.cars[k + c_north].direction = 270
+            self.cars[k + c_north].direction = 90
         for k in range(c_east):
             self.cars[k + c_north+c_south].direction = 0
         for k in range(c_west):
@@ -338,27 +338,27 @@ class AvenueModel(ap.Model):
         for k in range(c_north):
             if k % 4 == 0:
                 self.cars[k].carril = 0
-                self.avenue.move_to(self.cars[k], [self.p.size*0.5 - 0,-self.p.size+self.p.cars*11 -10*(k+1)])
+                self.avenue.move_to(self.cars[k], [self.p.size*0.5 + 0,self.p.size-self.p.cars*11 +10*(k+1)])
             if k % 4 ==1:
                 self.cars[k].carril = 1
-                self.avenue.move_to(self.cars[k], [self.p.size*0.5 - 9,-self.p.size+self.p.cars*11-10*(k+1)])
+                self.avenue.move_to(self.cars[k], [self.p.size*0.5 + 9,self.p.size-self.p.cars*11+10*(k+1)])
             if k % 4 == 2:
                 self.cars[k].carril = 2
-                self.avenue.move_to(self.cars[k], [self.p.size*0.5 - 18,-self.p.size+self.p.cars*11 -10*(k+1)])
+                self.avenue.move_to(self.cars[k], [self.p.size*0.5 + 18,self.p.size-self.p.cars*11 +10*(k+1)])
             if k % 4 ==3:
                 self.cars[k].carril = 3
-                self.avenue.move_to(self.cars[k], [self.p.size*0.5 - 27,-self.p.size+self.p.cars*11 -10*(k+1)])
+                self.avenue.move_to(self.cars[k], [self.p.size*0.5 + 27,self.p.size-self.p.cars*11 +10*(k+1)])
 
         for k in range(c_south):
             if k % 3 == 0:
                 self.cars[k+c_north].carril = 0
-                self.avenue.move_to(self.cars[k+c_north], [self.p.size*0.5 + 7, self.p.size - self.p.cars*11 + (k+1)*10])
+                self.avenue.move_to(self.cars[k+c_north], [self.p.size*0.5 - 7, -self.p.size + self.p.cars*11 - (k+1)*10])
             if k % 3 == 1:
                 self.cars[k+c_north].carril = 1
-                self.avenue.move_to(self.cars[k+c_north], [self.p.size*0.5 + 15, self.p.size - self.p.cars*11 + (k+1)*10])
+                self.avenue.move_to(self.cars[k+c_north], [self.p.size*0.5 - 15, -self.p.size + self.p.cars*11 - (k+1)*10])
             if k % 3 == 2:
                 self.cars[k+c_north].carril = 2
-                self.avenue.move_to(self.cars[k+c_north], [self.p.size*0.5 + 21, self.p.size - self.p.cars*11 + (k+1)*10])
+                self.avenue.move_to(self.cars[k+c_north], [self.p.size*0.5 - 21, -self.p.size + self.p.cars*11 - (k+1)*10])
 
         for k in range(c_east):
             if k % 3 == 0:
