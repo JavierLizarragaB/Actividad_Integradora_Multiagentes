@@ -14,11 +14,14 @@ class DirectionalLight extends THREE.DirectionalLight {
     }
 }
 class SpotLight extends THREE.SpotLight {
-    constructor(color = 0xFFFFFF, intensity = 1, distance = 0, angle = Math.PI / 2, penumbra = 0, decay = 1) {
+    constructor(color = 0xFFFFFF, intensity = 1, distance = 0, angle = Math.PI / 6, penumbra = 0, decay = 1) {
         super(color, intensity, distance, angle, penumbra, decay);
         this.angleDeg = angle * 180 / Math.PI;
         this.strColor = color;
         this.position.set(0, 3, 0);
+    }
+    setPosition(x,y,z){
+        this.position.set(x,y,z);
     }
     setColor(strColor) {
         this.color.setHex(strColor);

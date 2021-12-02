@@ -19,9 +19,9 @@ class Car extends THREE.LOD {
         this.lowPoli = "./assets/car.obj";
         this.midPoli = "./assets/coche.obj";
         this.highPoli = "./assets/sportsCar.obj";
-        this.loadOBJModel(this.lowPoli, 350, 1.8);
-        this.loadOBJModel(this.midPoli, 50, 4);
-        this.loadOBJModel(this.highPoli, 0, 4);
+        this.loadOBJModel(this.lowPoli, 350, 1.4);
+        this.loadOBJModel(this.midPoli, 50, 3.1);
+        this.loadOBJModel(this.highPoli, 0, 3.1);
         scene.add(this);
         this.setDirection(dir);
 
@@ -130,6 +130,10 @@ class Car extends THREE.LOD {
         });
     }
     setPosition(x, z) {
+        if(this.theta == 0) x -= 9;
+        if(this.theta == 90) z += 5;
+        if(this.theta == 180) x += 1;
+        if(this.theta == 270) x -= 5;
         this.x = x;
         this.z = z;
         this.position.set(x, 0, z);
