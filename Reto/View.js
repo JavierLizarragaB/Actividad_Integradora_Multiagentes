@@ -7,7 +7,7 @@ class View extends THREE.WebGLRenderer{
         super({
             antialias: true
         });
-        this.viewports = 3;
+        this.viewports = 1;
         this.shadowMap.enabled = true;
         this.shadowMap.type = THREE.PCFSoftShadowMap;
         this.setClearColor(new THREE.Color(191, 195, 201));

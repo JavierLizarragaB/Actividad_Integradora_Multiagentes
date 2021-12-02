@@ -49,6 +49,10 @@ class Building extends THREE.Group {
                 side: THREE.FrontSide
             })
         ];
+        materialTexture.forEach(side => {
+            side.castShadow = true;
+            side.receiveShadow = true;
+        });
         this.texture = new THREE.Mesh(geometry, materialTexture);
         this.solid = new THREE.Mesh(geometry, material);
         this.wire = new THREE.Mesh(geometry, materialWire);

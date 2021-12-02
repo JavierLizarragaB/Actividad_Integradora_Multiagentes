@@ -21,24 +21,19 @@ import {
 
 let renderer, scene, stats, data, scenary;
 let camera;
-let gui, sceneMenu, cameraMenu, buildingMenu, trafficLightMenu, vehicleMenu;
+let gui, sceneMenu, buildingMenu, trafficLightMenu, vehicleMenu;
 let frameIndex = 0;
 let automobiles = [];
 
 function init(event) {
     gui = new dat.GUI();
     sceneMenu = gui.addFolder("Scene Menu");
-    cameraMenu = gui.addFolder("Camera");
     buildingMenu = gui.addFolder("Buildings");
     trafficLightMenu = gui.addFolder("Traffic Lights");
     vehicleMenu = gui.addFolder("Vehicles");
 
     renderer = new View();
-    camera = [];
-    camera.push(new Camera(cameraMenu, renderer));
-    camera.push(new Camera(cameraMenu, renderer));
-    camera.push(new Camera(cameraMenu, renderer));
-    camera.push(new Camera(cameraMenu, renderer));
+    camera = [new Camera(renderer),new Camera(renderer),new Camera(renderer),new Camera(renderer)];
     camera[0].setTopView();
     camera[1].setFrontView();
     camera[2].setPerspective();
@@ -115,3 +110,12 @@ window.addEventListener("resize", () => {
     renderer.setViews(1);
 }, false);
 document.addEventListener("DOMContentLoaded", init);
+document.addEventListener('keypress', key => {
+    if(key.key == "r"){
+        camera[0].setTopView();
+        camera[1].setFrontView();
+        camera[2].setPerspective();
+        camera[3].setSideView();
+        renderer.setViews(1);
+    }
+});
