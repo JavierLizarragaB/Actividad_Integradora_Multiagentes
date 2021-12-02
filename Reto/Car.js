@@ -1,5 +1,5 @@
-import * as THREE from 'https://unpkg.com/three/build/three.module.js';
-import {OBJLoader} from 'https://cdn.jsdelivr.net/npm/three@0.117.1/examples/jsm/loaders/OBJLoader.js';
+import * as THREE from './build/three.module.js';
+import {OBJLoader} from './jsm/loaders/OBJLoader.js';
 
 "use strict";
 

@@ -1,4 +1,4 @@
-import * as THREE from 'https://unpkg.com/three/build/three.module.js';
+import * as THREE from './build/three.module.js';
 import {Axes} from './Axes.js';
 import {Floor} from './Floor.js';
 import {Semafor} from './TrafficLight.js';

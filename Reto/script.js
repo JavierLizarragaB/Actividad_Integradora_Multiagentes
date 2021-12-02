@@ -1,5 +1,5 @@
-import * as THREE from 'https://unpkg.com/three/build/three.module.js';
-import Stats from "https://unpkg.com/three/examples/jsm/libs/stats.module.js";
+import * as THREE from './build/three.module.js';
+import Stats from "./jsm/libs/stats.module.js";
 
 import {
     Camera
