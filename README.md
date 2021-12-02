@@ -1,3 +1,11 @@
+# Reto: Movilidad Urbana
+## Simulacion Multiagente
+  La solución multiagentes se diseño para encontrar una manera de que los autos se comportaran como en la realidad, interactuando principalmente con otros autos y      semáforos, los cuales también cambian, con la diferencia de que ellos actúen de diferente manera a la actual, respondiendo a su ambiente y evitando ciclos monótonos que optimizaran el flujo vehicular. 
+  Estas decisiones se basaron principalmente en las posiciones, velocidades y direcciones de los vehículos, además de los estados de cada semáforo individualmente.   Tales variables modificaban el comportamiento de los agentes, los vehículos respetando distancias entre ellos reduciendo su velocidad si es necesario, además de llegando a un alto total dependiendo del estado del semáforo, los cuales cambian dependiendo de su propia lógica contando los autos que vayan es su dirección.
+
+## Simulacion Grafica
+  En la simulación grafica se busco hacer lo mas exacto posible, dando la posibilidad de mostrar la mayor cantidad de detalle posible, empezando con varias vistas para ver el proceso de distintas maneras, con una libertad de modificar la escena a disposición del usuario. Cuidando los niveles de detalles según la distancia y opciones del usuario para no desperdiciar recursos.
+
 # Actividad integradora multiagentes
 ## Primera parte
   Considere un juego de disparejo entre cuatro jugadores, en el que cada jugador adopta la siguiente estrategia:
