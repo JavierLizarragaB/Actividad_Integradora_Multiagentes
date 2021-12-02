@@ -10,7 +10,7 @@ import {Model} from './Model.js';
 "use strict";
 
 class Scenary extends THREE.Group {
-    constructor(TraficLightMenu, BuildingMenu, ScenaryMenu, scene, size = 1000) {
+    constructor(TraficLightMenu, BuildingMenu, ScenaryMenu, scene, size = 10000) {
         super();
         this.axes = new Axes(ScenaryMenu, size);
         this.floor = new Floor(size);
@@ -28,27 +28,27 @@ class Scenary extends THREE.Group {
         let skyGeo = new THREE.BoxGeometry(size, size, size);
         let skyMat = [
             new THREE.MeshBasicMaterial({
-                map: new THREE.TextureLoader().load("./img/skybox/elyvisions/sp2_ft.png"),
+                map: new THREE.TextureLoader().load("./img/skybox/elyvisions/sh_ft.png"),
                 side: THREE.DoubleSide
             }),
             new THREE.MeshBasicMaterial({
-                map: new THREE.TextureLoader().load("./img/skybox/elyvisions/sp2_bk.png"),
+                map: new THREE.TextureLoader().load("./img/skybox/elyvisions/sh_bk.png"),
                 side: THREE.DoubleSide
             }),
             new THREE.MeshBasicMaterial({
-                map: new THREE.TextureLoader().load("./img/skybox/elyvisions/sp2_up.png"),
+                map: new THREE.TextureLoader().load("./img/skybox/elyvisions/sh_up.png"),
                 side: THREE.DoubleSide
             }),
             new THREE.MeshBasicMaterial({
-                map: new THREE.TextureLoader().load("./img/skybox/elyvisions/sp2_dn.png"),
+                map: new THREE.TextureLoader().load("./img/skybox/elyvisions/sh_dn.png"),
                 side: THREE.DoubleSide
             }),
             new THREE.MeshBasicMaterial({
-                map: new THREE.TextureLoader().load("./img/skybox/elyvisions/sp2_rt.png"),
+                map: new THREE.TextureLoader().load("./img/skybox/elyvisions/sh_rt.png"),
                 side: THREE.DoubleSide
             }),
             new THREE.MeshBasicMaterial({
-                map: new THREE.TextureLoader().load("./img/skybox/elyvisions/sp2_lf.png"),
+                map: new THREE.TextureLoader().load("./img/skybox/elyvisions/sh_lf.png"),
                 side: THREE.DoubleSide
             })
         ];
