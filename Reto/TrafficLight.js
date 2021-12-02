@@ -1,7 +1,6 @@
-import * as THREE from './build/three.module.js';
-import Stats from "./jsm/libs/stats.module.js";
-import {OrbitControls} from "./jsm/controls/OrbitControls.js";
-import {OBJLoader} from './jsm/loaders/OBJLoader.js';
+import * as THREE from 'https://unpkg.com/three/build/three.module.js';
+import {OBJLoader} from 'https://cdn.jsdelivr.net/npm/three@0.117.1/examples/jsm/loaders/OBJLoader.js';
+import {SpotLight} from './Lights.js';
 
 "use strict";
 
@@ -16,6 +15,7 @@ class Semafor extends THREE.LOD {
         this.position.set(x, 0, z);
         this.rotation.y = orientation
         this.corner = corner;
+        this.light = new SpotLight();
         this.lowPoli = "./assets/SemaforoLowPoli.obj";
         this.highPoli = "./assets/trafficlight/trafficlight.obj";
         this.loadOBJModel(this.lowPoli, 300, 1);
@@ -25,8 +25,8 @@ class Semafor extends THREE.LOD {
         const guiModelMenu = menu.addFolder(this.corner + " Traffic Ligth Menu");
         guiModelMenu.add(this, "visible").setValue(this.visible).name("Visible").listen().onChange(value => {});
         guiModelMenu.add(this, "wireframe").setValue(this.wireframe).name("Wireframe").listen().onChange(value => {});
-        guiModelMenu.addColor(this, "color").name("Color").setValue(this.color).listen().onChange(value => this.setColor(value));
-        guiModelMenu.addColor(this, "wireColor").name("Wire Color").setValue(this.wireColor).listen().onChange(value => this.setWireColor(value));
+        guiModelMenu.add(this.light, "visible").setValue(this.light.visible).name("Light").listen().onChange(value => {});
+
     }
     loadOBJModel(objFileName, zoom, scael, index = 0, rotate = false) {
         const loader = new OBJLoader();
@@ -54,8 +54,12 @@ class Semafor extends THREE.LOD {
                 });
                 // CHILDREN
                 trafficLight.solid[index].castShadow = true;
+                trafficLight.wire[index].castShadow = true;
                 trafficLight.solid[index].receiveShadow = true;
-                trafficLight.solid[index].scale.set(scael,scael,scael);
+                if(index == 0){
+                    trafficLight.solid[index].scale.set(scael,1.5*scael,scael);
+                    trafficLight.wire[index].scale.set(scael,1.5*scael,scael);
+                }
                 if(rotate){
                     trafficLight.solid[index].rotation.y = (- 90) * Math.PI / 180;
                     trafficLight.wire[index].rotation.y = (- 90) * Math.PI / 180;
@@ -63,6 +67,7 @@ class Semafor extends THREE.LOD {
                 let trafficGroup = new THREE.LOD();
                 trafficGroup.add(trafficLight.solid[index]);
                 trafficGroup.add(trafficLight.wire[index]);
+                trafficGroup.add(trafficLight.light);
                 trafficLight.addLevel(trafficGroup, zoom);
                 trafficLight.setOnFloor();
             },
@@ -76,6 +81,7 @@ class Semafor extends THREE.LOD {
     }
     setColor(hexColor) {
         this.color = hexColor;
+        this.light.setColor(hexColor);
         this.solid.forEach(solid => {
             solid.traverse(function (child) {
                 if (child.isMesh) {
@@ -98,6 +104,7 @@ class Semafor extends THREE.LOD {
         const bBox = new THREE.Box3();
         bBox.setFromObject(this.solid[0]);
         this.position.y = -bBox.min.y;
+        this.light.setPosition(this.position.x,bBox.max.y+20,this.position.z);
     }
 }
 
