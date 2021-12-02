@@ -6,7 +6,7 @@ import {OBJLoader} from 'https://cdn.jsdelivr.net/npm/three@0.117.1/examples/jsm
 "use strict";
 
 class Model extends THREE.Group {
-    constructor(scene, x = 0, z = 0, size = 1, objFileName = "./assets/obj/cruceColores2.obj" //mtlFileName = "./assets/obj/cruceColores2.mtl"
+    constructor(scene, x = 0, z = 0, size = 1, objFileName = "./assets/cruceColores2.obj" //mtlFileName = "./assets/cruceColores2.mtl"
     ){
         super();
         this.color = 0xcc0000;
